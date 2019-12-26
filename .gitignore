@@ -1,0 +1,38 @@
+# Don't track content of these folders
+vendor/
+_vendor-*/
+test-reports/
+bin/
+.idea/
+.DS_Store
+
+###################
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+test/coverage*
+
+# Locally running Cockroach DB
+cockroach-data/
+data/*
+tools/data/*
+
+fmtcoverage.html
+*.out
+.vscode/launch.json
+
