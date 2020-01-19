@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	pb "bandi.com/main/pkg/data/proto"
+	pb "bandi.com/main/pkg/data"
 	"github.com/golang/protobuf/proto"
 	"github.com/stretchr/testify/assert"
 )

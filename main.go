@@ -5,20 +5,42 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 
 	"bandi.com/main/data"
-	pb "bandi.com/main/pkg/data/proto"
+	pb "bandi.com/main/pkg/data"
+	"bandi.com/main/pkg/protocol"
 	"bandi.com/main/state"
 	"github.com/golang/protobuf/proto"
 )
 
+// ResolvedAddresses of host.
+func getResolvedAddresses(host string) *net.TCPAddr {
+	addr, err := net.ResolveTCPAddr("tcp", host)
+	if err != nil {
+		log.Fatalln("ResolveTCPAddr of host:", err)
+	}
+	return addr
+}
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
+	go func() {
+		_ = protocol.RunRestServer(ctx, "18091", "18081")
+	}()
+
+	protocol.RunGrpcServer(ctx, "18091")
+
 	defer cancel()
+	// PerformProtoChanges(nil)
 
-	PerformProtoChanges(nil)
+	// TestContext(ctx)
 
+}
+
+// TestContext - Some test
+func TestContext(ctx context.Context) {
 	session := state.SessionInfo{
 		SessionID: "123",
 	}
@@ -44,7 +66,6 @@ func main() {
 	var sdf string
 	value := sdf
 	fmt.Println("Value of sdf ", sdf, value)
-
 }
 
 // PerformProtoChanges - Proto Buf Serialization & DeSerialization
