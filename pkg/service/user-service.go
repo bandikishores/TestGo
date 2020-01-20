@@ -91,5 +91,7 @@ func (us *UserService) StreamUsers(req *data.GetUserRequest, stream data.UserSer
 		},
 	})
 
+	stream.Context().Done()
+
 	return nil
 }
