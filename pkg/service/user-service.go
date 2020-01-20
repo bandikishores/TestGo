@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"bandi.com/main/pkg/data"
 	"golang.org/x/net/context"
@@ -66,4 +67,29 @@ func (us *UserService) DeleteUser(ctx context.Context, req *data.DeleteUserReque
 	return &data.DeleteUserResponse{
 		Name: req.Name,
 	}, nil
+}
+
+// StreamUsers Streams existing user with manual delay for demo
+func (us *UserService) StreamUsers(req *data.GetUserRequest, stream data.UserService_StreamUsersServer) error {
+	fmt.Println("Getting user: ", req)
+
+	value, exists := userCache[req.Name]
+
+	if !exists {
+		return fmt.Errorf("user %s doesn't exist", req.Name)
+	}
+
+	stream.Send(&data.GetUserResponse{
+		User: value,
+	})
+
+	time.Sleep(3000 * time.Millisecond)
+
+	stream.Send(&data.GetUserResponse{
+		User: &data.User{
+			Name: "After Sleep, Dummy Data",
+		},
+	})
+
+	return nil
 }

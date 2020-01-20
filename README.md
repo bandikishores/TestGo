@@ -4,6 +4,7 @@ Sample project to test out go features
 * Setting Up Project
    1) Clone the repo into $GOPATH/bandi.com/
    2) Run `make` command inside $GOPATH/bandi.com/TestGo Folder
+   3) go run main.go 
 
 * Sample Visual Studio Launch.json for Debugging code. (Setup Visual Studio by adding folder bandi.com in workspace)
   1) Paste this in launch.json
@@ -44,7 +45,9 @@ Sample project to test out go features
         }'
       ```
   2) Get User
-      `curl -X GET http://localhost:18081/organizations/bandi/users/kishore -H 'Host: localhost:18081'`
+      `curl -X GET http://localhost:18081/organizations/bandi/users/kishore?queryParam1=123 -H 'Host: localhost:18081'`
+  3) For Streaming Responses
+      `curl -X GET http://localhost:18081/organizations/bandi/streamusers/kishore?queryParam1=123 -H 'Host: localhost:18081'`
 
 
 * Manual Installation and Compilation of Proto/Go
