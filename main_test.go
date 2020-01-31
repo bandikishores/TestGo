@@ -1,11 +1,17 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"strconv"
 	"testing"
 
-	pb "bandi.com/main/pkg/data"
 	"github.com/golang/protobuf/proto"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc"
+
+	pb "bandi.com/main/pkg/data"
 )
 
 func TestMain(t *testing.T) {
@@ -27,4 +33,8 @@ func TestProto(t *testing.T) {
 	}}
 	restoredBook := PerformProtoChanges(book)
 	assert.True(t, proto.Equal(book, restoredBook))
+}
+
+func TestGrpcProto(t *testing.T) {
+
 }

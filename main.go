@@ -25,6 +25,7 @@ func getResolvedAddresses(host string) *net.TCPAddr {
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	go func() {
 		_ = protocol.RunRestServer(ctx, "18091", "18081")
@@ -32,7 +33,6 @@ func main() {
 
 	protocol.RunGrpcServer(ctx, "18091")
 
-	defer cancel()
 	// PerformProtoChanges(nil)
 
 	// TestContext(ctx)

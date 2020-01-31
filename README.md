@@ -5,6 +5,8 @@ Sample project to test out go features
    1) Clone the repo into $GOPATH/bandi.com/
    2) Run `make` command inside $GOPATH/bandi.com/TestGo Folder
    3) go run main.go 
+   4) To RUN grpc get user client use
+        `go run examples/main/main_grpc_client.go `
 
 * Sample Visual Studio Launch.json for Debugging code. (Setup Visual Studio by adding folder bandi.com in workspace)
   1) Paste this in launch.json

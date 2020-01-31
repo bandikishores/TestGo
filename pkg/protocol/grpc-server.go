@@ -39,6 +39,6 @@ func RunGrpcServer(ctx context.Context, port string) error {
 	}()
 
 	// start gRPC server
-	log.Println("starting gRPC server...")
+	log.Printf("starting gRPC server at port =%v...\n", port)
 	return server.Serve(listen)
 }
