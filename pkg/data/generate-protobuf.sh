@@ -15,4 +15,5 @@ echo "Generating gRPC server, gateway, swagger"
 $protoc --go_out=plugins=grpc:$ROOT/pkg/data \
         --grpc-gateway_out=logtostderr=true,request_context=true:$ROOT/pkg/data \
         --swagger_out=logtostderr=true:$ROOT/data/swagger \
+        --swagger_out=logtostderr=true,allow_merge=true:$ROOT/data/swagger \
         ./*.proto

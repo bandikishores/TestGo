@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
+	"os"
+	"runtime/pprof"
 
 	"bandi.com/main/data"
 	pb "bandi.com/main/pkg/data"
@@ -27,10 +30,34 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	go func() {
-		_ = protocol.RunRestServer(ctx, "18091", "18081")
-	}()
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	var memprofile = flag.String("memprofile", "", "write memory profile to file")
+	flag.Parse()
 
+	if cpuprofile != nil && *cpuprofile != "" {
+		fmt.Println("cpu profiler enabled")
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	} else {
+		fmt.Println("cpu profiler disabled")
+	}
+
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
+		return
+	}
+	fmt.Println("mem profiler disabled")
+
+	go protocol.RunRestServer(ctx, "18091", "18081")
 	protocol.RunGrpcServer(ctx, "18091")
 
 	// PerformProtoChanges(nil)

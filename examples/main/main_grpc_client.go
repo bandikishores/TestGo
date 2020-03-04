@@ -114,7 +114,7 @@ func StreamUsers(ctx context.Context, req *pb.GetUserRequest) ([]*pb.GetUserResp
 		}
 
 		var userResponses = make([]*pb.GetUserResponse, 1)
-	
+
 		for {
 			userResponse, err := usersStream.Recv()
 			if err == io.EOF {

@@ -56,7 +56,11 @@ $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)
 $(TEST_TARGETS): test
 test: fmt lint | $(BASE) ; $(info $(M) running $(NAME:%=% )tests…) @ ## Run tests
 	$Q cd $(BASE) && $(GO) test -v -timeout $(TIMEOUT)s $(ARGS) $(TESTPKGS)
-	
+
+.PHONY: bench
+bench: ; $(info $(M) running $(NAME:%=% )benchmarks…) @ ## Run benchmarks
+	$(GO) test ./... -bench=. -run=^$$
+
 .PHONY: lint
 lint: download | $(BASE) $(GOLINT) ; $(info $(M) running golint…) @ ## Run golint
 	$Q cd $(BASE) && ret=0 && for pkg in $(PKGS); do \

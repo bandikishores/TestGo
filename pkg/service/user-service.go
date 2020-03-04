@@ -76,7 +76,7 @@ func (us *UserService) StreamUsers(req *data.GetUserRequest, stream data.UserSer
 	value, exists := userCache[req.Name]
 
 	if !exists {
-		fmt.Println("user %s doesn't exist", req.Name)
+		fmt.Printf(fmt.Sprintf("user %s doesn't exist", req.Name))
 		return fmt.Errorf("user %s doesn't exist", req.Name)
 	}
 
