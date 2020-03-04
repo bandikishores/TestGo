@@ -12,6 +12,9 @@ Sample project to test out go features
         `make test`
    6) To RUN Benchmark Tests
         `make bench` or manually run `go test -bench=.`
+   7) Running Swagger Document
+        `swagger serve data/swagger/apidocs.swagger.json`
+
 
 * Sample Visual Studio Launch.json for Debugging code. (Setup Visual Studio by adding folder bandi.com in workspace)
   1) Paste this in launch.json
@@ -39,22 +42,37 @@ Sample project to test out go features
 
 * After Launching Application
   1) Create User
-      ```curl
+      ```
         curl -X POST \
         http://localhost:18081/organizations/bandi/users \
         -H 'Content-Type: application/json' \
         -d '{
-            "User" : {
                 "name": "kishore",
                 "displayName": "bandi kishore",
                 "email": "bandikishores@gmail.com"
-            }
-        }'
+            }'
       ```
   2) Get User
       `curl -X GET http://localhost:18081/organizations/bandi/users/kishore?queryParam1=123 -H 'Host: localhost:18081'`
   3) For Streaming Responses
       `curl -X GET http://localhost:18081/organizations/bandi/streamusers/kishore?queryParam1=123 -H 'Host: localhost:18081'`
+
+            OR
+
+      `curl -X GET http://localhost:18081/streamusers/kishore?queryParam1=123 -H 'Host: localhost:18081'`
+  4) Update User
+      ```
+        curl -X PUT \
+        http://localhost:18081/organizations/bandi/users/kishore \
+        -H 'Content-Type: application/json' \
+        -d '{
+            "user" : {
+                "name": "kishore",
+                "displayName": "bandi kishore s",
+                "email": "bandikishores@gmail.com"
+            }
+        }'
+      ```
 
 
 * Manual Installation and Compilation of Proto/Go

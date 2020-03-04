@@ -50,7 +50,7 @@ message User {
 }
 
 message CreateUserRequest {
-  User User = 1;
+  User user = 1;
   string orgName = 2;
 }
 
@@ -60,7 +60,7 @@ message CreateUserResponse {
 }
 
 message UpdateUserRequest{
-    User User = 1;
+    User user = 1;
     string orgName = 2;
     string name = 3;
 }
@@ -87,7 +87,7 @@ message GetUserRequest{
 }
 
 message GetUserResponse{
-    User User = 1;
+    User user = 1;
     google.rpc.Status status = 2;
 }
 
@@ -110,7 +110,7 @@ service UserService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse){
       option (google.api.http) = {
           post: "/organizations/{orgName}/users"
-          body: "User"
+          body: "user"
       };
 
     option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
@@ -127,7 +127,7 @@ service UserService {
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){
       option (google.api.http) = {
           put: "/organizations/{orgName}/users/{name}"
-          body: "User"
+          body: "*"
       };
   }
 
@@ -146,7 +146,7 @@ service UserService {
       option (google.api.http) = {
           get: "/organizations/{orgName}/streamusers/{name}"
           additional_bindings {
-              get: "/users/{name}"
+              get: "/streamusers/{name}"
           }
       };
   }

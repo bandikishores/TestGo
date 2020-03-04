@@ -228,7 +228,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/dataUser"
+              "$ref": "#/definitions/dataUpdateUserRequest"
             }
           }
         ],
@@ -237,7 +237,7 @@
         ]
       }
     },
-    "/users/{name}": {
+    "/streamusers/{name}": {
       "get": {
         "operationId": "StreamUsers2",
         "responses": {
@@ -287,7 +287,9 @@
         "tags": [
           "UserService"
         ]
-      },
+      }
+    },
+    "/users/{name}": {
       "delete": {
         "operationId": "DeleteUser2",
         "responses": {
@@ -372,11 +374,25 @@
     "dataGetUserResponse": {
       "type": "object",
       "properties": {
-        "User": {
+        "user": {
           "$ref": "#/definitions/dataUser"
         },
         "status": {
           "$ref": "#/definitions/rpcStatus"
+        }
+      }
+    },
+    "dataUpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/dataUser"
+        },
+        "orgName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },
