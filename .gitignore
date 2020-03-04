@@ -29,7 +29,6 @@ test/coverage*
 
 # Locally running Cockroach DB
 cockroach-data/
-data/*
 tools/data/*
 
 fmtcoverage.html

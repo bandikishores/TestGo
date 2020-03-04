@@ -1,0 +1,118 @@
+syntax = "proto3";
+package data;
+
+import "protoc-gen-swagger/options/annotations.proto";
+import "google/rpc/status.proto";
+import "google/api/annotations.proto";
+
+import "addressbook.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+	info: {
+		title: "Bandi User";
+		version: "1.0";
+		contact: {
+			name: "Bandi";
+			url: "https://bandikishores.com/";
+			email: "support@bandikishores.com";
+        };
+    };
+    schemes: HTTP;
+    consumes: "application/json";
+    produces: "application/json";
+    responses: {
+		key: "404";
+		value: {
+			description: "Returned when the resource does not exist.";
+			schema: {
+				json_schema: {
+					type: STRING;
+				}
+			}
+		}
+	}
+};
+
+message User {
+  string name = 1;
+  string displayName = 2;
+  Address contactAddress = 3;
+  string email = 4;
+  string oktaID = 5;
+}
+
+message CreateUserRequest {
+  User User = 1;
+  string orgName = 2;
+}
+
+message CreateUserResponse {
+  string name = 1;
+  google.rpc.Status status = 2;
+}
+
+message UpdateUserRequest{
+    User User = 1;
+    string orgName = 2;
+}
+
+message UpdateUserResponse{
+    string name = 1;
+    google.rpc.Status status = 2;
+}
+
+message DeleteUserRequest{
+    string name = 1;
+    string orgName = 2;
+}
+
+message DeleteUserResponse{
+    string name = 1;
+    google.rpc.Status status = 2;
+}
+
+message GetUserRequest{
+    string name = 1;
+    string orgName = 2;
+    string queryParam1 = 3;
+}
+
+message GetUserResponse{
+    User User = 1;
+    google.rpc.Status status = 2;
+}
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse){
+      option (google.api.http) = {
+          get: "/organizations/{orgName}/users/{name}"
+      };
+  }
+
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse){
+      option (google.api.http) = {
+          post: "/organizations/{orgName}/users"
+          body: "User"
+      };
+  }
+
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
+      option (google.api.http) = {
+          delete: "/organizations/{orgName}/users/{name}"
+          additional_bindings {
+              get: "/users/{name}"
+          }
+      };
+  }
+
+  rpc StreamUsers(GetUserRequest) returns (stream GetUserResponse){
+      option (google.api.http) = {
+          get: "/organizations/{orgName}/streamusers/{name}"
+          additional_bindings {
+              get: "/users/{name}"
+          }
+      };
+  }
+}
+
+
