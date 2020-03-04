@@ -3,8 +3,10 @@ module bandi.com/main
 go 1.13
 
 require (
+	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-cmp v0.3.1 // indirect
+	github.com/googleapis/googleapis v0.0.0-20200303215514-541b1ded4aba // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.12.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.4.2

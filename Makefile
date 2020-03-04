@@ -43,13 +43,21 @@ PROTOC_GO = $(BIN)/protoc-gen-go
 $(BIN)/protoc-gen-go: | $(BASE) ; $(info $(M) installing protoc-gen-go…)
 	$Q $(GO) get -u github.com/golang/protobuf/protoc-gen-go
 
+PROTOC_GEN_GOGO = $(BIN)/protoc-gen-gogo
+$(BIN)/protoc-gen-gogo: | $(BASE) ; $(info $(M) installing protoc-gen-gogo…)
+	$Q $(GO) get -u github.com/gogo/protobuf/protoc-gen-gogo
+
+GOOGLE_APIS = $(BIN)/google-apis
+$(BIN)/google-apis: | $(BASE) ; $(info $(M) installing googleapis…)
+	$Q $(GO) get -u github.com/googleapis/googleapis@v0.0.0-20200303215514-541b1ded4aba
+
 # Dependency management
 .PHONY: download
 download:
 	$Q cd $(BASE) && $(GO) mod download; $(info $(M) retrieving dependencies…)
 
 .PHONY: install-dependencies 
-install-dependencies: $(BIN)/golint $(BIN)/protoc-gen-grpc-gateway $(BIN)/protoc-gen-swagger $(BIN)/protoc-gen-go   ## Install dependent go tools
+install-dependencies: $(BIN)/golint $(BIN)/protoc-gen-grpc-gateway $(BIN)/protoc-gen-swagger $(BIN)/protoc-gen-go $(PROTOC_GEN_GOGO) $(GOOGLE_APIS)  ## Install dependent go tools
 
 # Tests
 $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)

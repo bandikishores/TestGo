@@ -69,6 +69,23 @@ func (us *UserService) DeleteUser(ctx context.Context, req *data.DeleteUserReque
 	}, nil
 }
 
+// UpdateUser Updates existing user
+func (us *UserService) UpdateUser(ctx context.Context, req *data.UpdateUserRequest) (*data.UpdateUserResponse, error) {
+	fmt.Println("Updating user: ", req)
+
+	_, exists := userCache[req.Name]
+
+	if !exists {
+		return nil, fmt.Errorf("user %s doesn't exist", req.Name)
+	}
+
+	userCache[req.Name] = req.User
+
+	return &data.UpdateUserResponse{
+		Name: req.Name,
+	}, nil
+}
+
 // StreamUsers Streams existing user with manual delay for demo
 func (us *UserService) StreamUsers(req *data.GetUserRequest, stream data.UserService_StreamUsersServer) error {
 	fmt.Println("Getting user: ", req)

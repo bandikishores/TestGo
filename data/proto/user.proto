@@ -4,6 +4,8 @@ package data;
 import "protoc-gen-swagger/options/annotations.proto";
 import "google/rpc/status.proto";
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "gogoproto/gogo.proto";
 
 import "addressbook.proto";
 
@@ -34,11 +36,17 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 
 message User {
-  string name = 1;
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		example: { value: '{ "name": "Kishore" }' }
+    };
+    // This is my custom comments which shouldn't appear in documents as long as title is provided.
+  string name = 1 [
+      (google.api.field_behavior) = REQUIRED,
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {title: "User Name title", description: "Name of the User", pattern: "^[A-Za-z0-9]+$", min_length: 1, required: ['name']}];
   string displayName = 2;
   Address contactAddress = 3;
   string email = 4;
-  string oktaID = 5;
+  string ID = 5 [json_name = "_key", (gogoproto.jsontag) = "_key"]; // JSON Marshaller will use _key
 }
 
 message CreateUserRequest {
@@ -54,6 +62,7 @@ message CreateUserResponse {
 message UpdateUserRequest{
     User User = 1;
     string orgName = 2;
+    string name = 3;
 }
 
 message UpdateUserResponse{
@@ -82,7 +91,16 @@ message GetUserResponse{
     google.rpc.Status status = 2;
 }
 
+// This is my User Service Comment
 service UserService {
+    
+	option (grpc.gateway.protoc_gen_swagger.options.openapiv2_tag) = {
+		description: "User Service Description!!!"
+		external_docs: {
+			url: "https://github.com/grpc-ecosystem/grpc-gateway";
+			description: "Find out more about UserService";
+		}
+	};
   rpc GetUser(GetUserRequest) returns (GetUserResponse){
       option (google.api.http) = {
           get: "/organizations/{orgName}/users/{name}"
@@ -94,14 +112,33 @@ service UserService {
           post: "/organizations/{orgName}/users"
           body: "User"
       };
+
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+        description: "Description Create User";
+        summary: "Summary: Create Service rpc";
+        tags: "create service rpc";
+        external_docs: {
+            url: "https://github.com/grpc-ecosystem/grpc-gateway";
+            description: "Find out more create service";
+        }
+    };
+  }
+
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse){
+      option (google.api.http) = {
+          put: "/organizations/{orgName}/users/{name}"
+          body: "User"
+      };
   }
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse){
       option (google.api.http) = {
           delete: "/organizations/{orgName}/users/{name}"
-          additional_bindings {
-              get: "/users/{name}"
-          }
+          additional_bindings : [
+            {
+                delete: "/users/{name}"
+            }
+          ]
       };
   }
 
