@@ -10,6 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
+	"google.golang.org/grpc/metadata"
+
 	pb "bandi.com/main/pkg/data"
 )
 
@@ -32,7 +34,7 @@ func main() {
 	})
 	if err != nil {
 		entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred ")
-		return
+		// return
 	}
 
 	resp, err := StreamUsers(ctx, &pb.GetUserRequest{
@@ -42,7 +44,16 @@ func main() {
 		entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred ")
 		return
 	}
-	entry.Infof("Got Response : %v", resp)
+	entry.Infof("Got Stream Response : %v", resp)
+
+	getResp, err := GetUsers(ctx, &pb.GetUserRequest{
+		Name: "kishore",
+	})
+	if err != nil {
+		entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred ")
+		return
+	}
+	entry.Infof("Got Get Response : %v", getResp)
 }
 
 // Execute - Executes the passed method by injecting grpc Connection of grpc to the caller.
@@ -77,6 +88,34 @@ func getgrpcConnection() (*grpc.ClientConn, error) {
 	}
 
 	return conn, nil
+}
+
+// GetUsers - Get Users from grpc server
+func GetUsers(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
+	getUserFunction := func(conn *grpc.ClientConn) (interface{}, error) {
+		client := pb.NewUserServiceClient(conn)
+
+		md := metadata.Pairs("X-Custom-orgname", "This is my Custom Header O_o Weird")
+		ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+		resp, err := client.GetUser(ctx, req)
+		if err != nil {
+			entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred while trying to Get Users Table")
+			return nil, err
+		}
+		return resp, nil
+	}
+	resp, err := SafeExecute(getUserFunction)
+
+	if err != nil {
+		return nil, err
+	}
+
+	getUserResponse, ok := resp.(*pb.GetUserResponse)
+	if !ok {
+		return nil, errors.New("Could not cast response to get user")
+	}
+	return getUserResponse, nil
 }
 
 // CreateUsers - Create Users from grpc server

@@ -2,10 +2,12 @@ package service
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"bandi.com/main/pkg/data"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/metadata"
 )
 
 var userCache map[string]*data.User = make(map[string]*data.User)
@@ -40,6 +42,19 @@ func (us *UserService) CreateUser(ctx context.Context, req *data.CreateUserReque
 // GetUser Gets existing user
 func (us *UserService) GetUser(ctx context.Context, req *data.GetUserRequest) (*data.GetUserResponse, error) {
 	fmt.Println("Getting user: ", req)
+
+	md, ok := metadata.FromIncomingContext(ctx)
+
+	if ok {
+		val := md[strings.ToLower("X-Custom-orgname")]
+		if val == nil {
+			fmt.Println("Header X-Custom-orgname not found ")
+		} else {
+			fmt.Println("Value of X-Custom-orgname Retrieved was : ", val[0])
+		}
+	} else {
+		fmt.Errorf("Could not load metadata")
+	}
 
 	value, exists := userCache[req.Name]
 

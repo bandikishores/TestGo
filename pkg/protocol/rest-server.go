@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"bandi.com/main/pkg/data"
@@ -13,12 +14,20 @@ import (
 	"google.golang.org/grpc"
 )
 
+// If our header starts with X-Custom, we let it through
+func headerMatcher(header string) (string, bool) {
+	if strings.HasPrefix(header, "X-Custom-") {
+		return header, true
+	}
+	return runtime.DefaultHeaderMatcher(header)
+}
+
 // RunRestServer runs HTTP/REST gateway
 func RunRestServer(ctx context.Context, grpcPort, httpPort string) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	mux := runtime.NewServeMux()
+	mux := runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(headerMatcher))
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	if err := data.RegisterUserServiceHandlerFromEndpoint(ctx, mux, "localhost:"+grpcPort, opts); err != nil {

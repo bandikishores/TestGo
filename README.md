@@ -53,7 +53,11 @@ Sample project to test out go features
             }'
       ```
   2) Get User
-      `curl -X GET http://localhost:18081/organizations/bandi/users/kishore?queryParam1=123 -H 'Host: localhost:18081'`
+      `curl -X GET http://localhost:18081/organizations/bandi/users/kishore?queryParam1=123 -H 'Host: localhost:18081' --header 'X-Custom-orgname: someCustom'`
+
+            OR
+
+      `curl -X GET http://localhost:18081/users/kishore?queryParam1=123 -H 'Host: localhost:18081' --header 'X-Custom-orgname: someCustom'`
   3) For Streaming Responses
       `curl -X GET http://localhost:18081/organizations/bandi/streamusers/kishore?queryParam1=123 -H 'Host: localhost:18081'`
 

@@ -110,6 +110,11 @@
         "tags": [
           "create service rpc"
         ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "externalDocs": {
           "description": "Find out more create service",
           "url": "https://github.com/grpc-ecosystem/grpc-gateway"
@@ -118,6 +123,8 @@
     },
     "/organizations/{orgName}/users/{name}": {
       "get": {
+        "summary": "Summary: Get Service rpc",
+        "description": "Description Get User",
         "operationId": "GetUser",
         "responses": {
           "200": {
@@ -155,8 +162,18 @@
           }
         ],
         "tags": [
-          "UserService"
-        ]
+          "get service rpc"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": [],
+            "orgName": []
+          }
+        ],
+        "externalDocs": {
+          "description": "Find out more get service",
+          "url": "https://github.com/grpc-ecosystem/grpc-gateway"
+        }
       },
       "delete": {
         "operationId": "DeleteUser",
@@ -290,6 +307,59 @@
       }
     },
     "/users/{name}": {
+      "get": {
+        "summary": "Summary: Get Service rpc",
+        "description": "Description Get User",
+        "operationId": "GetUser2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/dataGetUserResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "orgName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "queryParam1",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "get service rpc"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": [],
+            "orgName": []
+          }
+        ],
+        "externalDocs": {
+          "description": "Find out more get service",
+          "url": "https://github.com/grpc-ecosystem/grpc-gateway"
+        }
+      },
       "delete": {
         "operationId": "DeleteUser2",
         "responses": {
@@ -433,7 +503,8 @@
           "type": "string"
         },
         "ID": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         }
       }
     },
@@ -499,5 +570,26 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "description": "Clients need to provide the X-API-KEY during a call in the header along with the Organization information",
+      "name": "X-API-Key",
+      "in": "header",
+      "x-api-key": "id"
+    },
+    "X-Custom-OrgName": {
+      "type": "apiKey",
+      "description": "Some dummy test Headers X-Custom-OrgName to check if grpc server can get it",
+      "name": "X-Custom-OrgName",
+      "in": "header",
+      "x-Custom-OrgName": "id"
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
 }

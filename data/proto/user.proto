@@ -32,6 +32,44 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 				}
 			}
 		}
+    };
+    security_definitions: {
+		security: {
+            key: "ApiKeyAuth";
+			value: {
+				type: TYPE_API_KEY;
+				in: IN_HEADER;
+                name: "X-API-Key";
+                description: "Clients need to provide the X-API-KEY during a call in the header along with the Organization information"
+				extensions: {
+					key: "x-api-key";
+					value {
+						string_value: "id";
+					}
+				}
+			}
+		},
+		security: {
+            key: "X-Custom-OrgName";
+			value: {
+				type: TYPE_API_KEY;
+				in: IN_HEADER;
+                name: "X-Custom-OrgName";
+                description: "Some dummy test Headers X-Custom-OrgName to check if grpc server can get it"
+				extensions: {
+					key: "x-Custom-OrgName";
+					value {
+						string_value: "id";
+					}
+				}
+			}
+		}
+	}
+	security: {
+		security_requirement: {
+			key: "ApiKeyAuth";
+			value: {};
+		}
 	}
 };
 
@@ -46,7 +84,8 @@ message User {
   string displayName = 2;
   Address contactAddress = 3;
   string email = 4;
-  string ID = 5 [json_name = "_key", (gogoproto.jsontag) = "_key"]; // JSON Marshaller will use _key
+  string ID = 5 [json_name = "_key", (gogoproto.jsontag) = "_key",
+  (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {read_only: true}]; // JSON Marshaller will use _key
 }
 
 message CreateUserRequest {
@@ -103,8 +142,32 @@ service UserService {
 	};
   rpc GetUser(GetUserRequest) returns (GetUserResponse){
       option (google.api.http) = {
-          get: "/organizations/{orgName}/users/{name}"
+          get: "/organizations/{orgName}/users/{name}" 
+          additional_bindings : [
+            {
+                get: "/users/{name}"
+            }
+          ]
       };
+      option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+        description: "Description Get User";
+        summary: "Summary: Get Service rpc";
+        tags: "get service rpc";
+        external_docs: {
+            url: "https://github.com/grpc-ecosystem/grpc-gateway";
+            description: "Find out more get service";
+        }
+        security: {
+            security_requirement: {
+                key: "ApiKeyAuth";
+                value: {}
+            },
+            security_requirement: {
+                key: "orgName";
+                value: {}
+            }
+        }
+    };
   }
 
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse){
@@ -120,6 +183,12 @@ service UserService {
         external_docs: {
             url: "https://github.com/grpc-ecosystem/grpc-gateway";
             description: "Find out more create service";
+        }
+        security: {
+            security_requirement: {
+                key: "ApiKeyAuth";
+                value: {}
+            }
         }
     };
   }
