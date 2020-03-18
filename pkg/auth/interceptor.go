@@ -31,9 +31,14 @@ func UnaryServerInterceptor(authFunc Func) grpc.UnaryServerInterceptor {
 		var newCtx context.Context
 		var err error
 		fmt.Printf("%T\n", info.Server)
-		newCtx, err = authFunc(ctx)
-		if err != nil {
-			return nil, err
+		// Skip Authentication for CreateUser
+		if info.FullMethod == "/data.UserService/CreateUser" {
+			fmt.Println("Skipping Authentication for ", info.FullMethod)
+		} else {
+			newCtx, err = authFunc(ctx)
+			if err != nil {
+				return nil, err
+			}
 		}
 		return handler(newCtx, req)
 	}
