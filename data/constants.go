@@ -6,4 +6,6 @@ type ContextKey int
 const (
 	// Session - The Session Object saved inside Context
 	Session ContextKey = iota
+	// OrgID - Stores OrgID
+	OrgID
 )

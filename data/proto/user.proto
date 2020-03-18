@@ -33,42 +33,49 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 			}
 		}
     };
+    
     security_definitions: {
 		security: {
             key: "ApiKeyAuth";
 			value: {
 				type: TYPE_API_KEY;
 				in: IN_HEADER;
-                name: "X-API-Key";
-                description: "Clients need to provide the X-API-KEY during a call in the header along with the Organization information"
-				extensions: {
+                name: "X-API-KEY";
+                description: "Clients need to provide the x-api-key during a call in header"
+                extensions: {
 					key: "x-api-key";
 					value {
 						string_value: "id";
 					}
-				}
-			}
-		},
-		security: {
-            key: "X-Custom-OrgName";
+                }
+            }
+        }
+        security: {
+            key: "OrgIdHeader";
 			value: {
-				type: TYPE_API_KEY;
+				type: TYPE_BASIC;
 				in: IN_HEADER;
-                name: "X-Custom-OrgName";
-                description: "Some dummy test Headers X-Custom-OrgName to check if grpc server can get it"
-				extensions: {
-					key: "x-Custom-OrgName";
+                name: "X-ORG-ID";
+                description: "Clients need to provide the Organization Id in the header against which the API call is being made"
+                extensions: {
+					key: "x-org-id";
 					value {
 						string_value: "id";
 					}
-				}
-			}
-		}
+                }
+            }
+        }
 	}
 	security: {
 		security_requirement: {
 			key: "ApiKeyAuth";
-			value: {};
+			value: { 
+            };
+		}
+		security_requirement: {
+			key: "OrgIdHeader";
+			value: { 
+            };
 		}
 	}
 };
@@ -197,6 +204,12 @@ service UserService {
       option (google.api.http) = {
           put: "/organizations/{orgName}/users/{name}"
           body: "*"
+          additional_bindings : [
+            {
+                put: "/users/{name}"
+                body: "user"
+            }
+          ]
       };
   }
 

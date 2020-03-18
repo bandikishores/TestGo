@@ -7,8 +7,10 @@ import (
 	"os"
 	"os/signal"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 
+	"bandi.com/main/pkg/auth"
 	"bandi.com/main/pkg/data"
 	"bandi.com/main/pkg/service"
 )
@@ -21,7 +23,14 @@ func RunGrpcServer(ctx context.Context, port string) error {
 	}
 
 	// register service
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			auth.StreamServerInterceptor(auth.CheckForBearerToken),
+		)),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			auth.UnaryServerInterceptor(auth.CheckForBearerToken),
+		)),
+	)
 	data.RegisterUserServiceServer(server, service.NewUserService())
 
 	// graceful shutdown

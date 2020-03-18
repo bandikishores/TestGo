@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 
 	pb "bandi.com/main/pkg/data"
 )
@@ -22,10 +23,13 @@ const Host = "localhost"
 const Port = 18091
 
 var entry *logrus.Entry = logrus.NewEntry(logrus.StandardLogger())
+var md = metadata.Pairs("authorization", "bearer some_token_if8y3498eufhkfj")
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	ctx = metadata.NewOutgoingContext(context.Background(), md)
 
 	_, err := CreateUsers(ctx, &pb.CreateUserRequest{
 		User: &pb.User{
@@ -95,12 +99,27 @@ func GetUsers(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse,
 	getUserFunction := func(conn *grpc.ClientConn) (interface{}, error) {
 		client := pb.NewUserServiceClient(conn)
 
-		md := metadata.Pairs("X-Custom-orgname", "This is my Custom Header O_o Weird")
-		ctx := metadata.NewOutgoingContext(context.Background(), md)
+		md1 := metadata.Pairs(
+			"X-Custom-orgname", "This is my Custom Header O_o Weird",
+			"authorization", "bearer some_token_if8y3498eufhkfj")
+		ctx := metadata.NewOutgoingContext(context.Background(), md1)
 
 		resp, err := client.GetUser(ctx, req)
 		if err != nil {
 			entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred while trying to Get Users Table")
+
+			st := status.Convert(err)
+			for _, detail := range st.Details() {
+				switch t := detail.(type) {
+				case *pb.Error:
+					fmt.Println("Oops! Your request was rejected by the server.")
+					fmt.Printf("The %q field was wrong:\n", t.Message)
+					fmt.Printf("\t%s\n", t.Code)
+					fmt.Printf("\t%s\n", t.Type)
+					fmt.Printf("\t%s\n", t.DetailedMessage)
+				}
+			}
+
 			return nil, err
 		}
 		return resp, nil
@@ -148,7 +167,7 @@ func StreamUsers(ctx context.Context, req *pb.GetUserRequest) ([]*pb.GetUserResp
 		client := pb.NewUserServiceClient(conn)
 		usersStream, err := client.StreamUsers(ctx, req)
 		if err != nil {
-			entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred while trying to Get Users Table")
+			entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred while trying to Stream Users Table")
 			return nil, err
 		}
 

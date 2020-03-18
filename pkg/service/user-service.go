@@ -1,13 +1,18 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	constants "bandi.com/main/data"
 	"bandi.com/main/pkg/data"
 	"golang.org/x/net/context"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 var userCache map[string]*data.User = make(map[string]*data.User)
@@ -53,13 +58,46 @@ func (us *UserService) GetUser(ctx context.Context, req *data.GetUserRequest) (*
 			fmt.Println("Value of X-Custom-orgname Retrieved was : ", val[0])
 		}
 	} else {
-		fmt.Errorf("Could not load metadata")
+		fmt.Println("Could not load metadata")
+	}
+
+	if ctx.Value(constants.OrgID) != nil {
+		fmt.Println("Value of ORGID:", ctx.Value(constants.OrgID).(string))
+	} else {
+		fmt.Println("Could not load OrgID")
 	}
 
 	value, exists := userCache[req.Name]
 
 	if !exists {
-		return nil, fmt.Errorf("user %s doesn't exist", req.Name)
+		return nil, errors.New(fmt.Sprintf("user %s doesn't exist", req.Name))
+	}
+
+	if false {
+		st := status.New(codes.NotFound, fmt.Sprintf("user %s doesn't exist", req.Name))
+		desc := "The username Doesn't exist, please give a valid username"
+
+		/*
+			customProtoError := &data.Error{
+				Message:         "Check username",
+				Code:            1404,
+				Type:            "Skyflow",
+				DetailedMessage: desc,
+			}
+		*/
+		v := &errdetails.BadRequest_FieldViolation{
+			Field:       "username",
+			Description: desc,
+		}
+		customProtoError := &errdetails.BadRequest{}
+		customProtoError.FieldViolations = append(customProtoError.FieldViolations, v)
+
+		st, err := st.WithDetails(customProtoError)
+
+		if err != nil {
+			panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
+		}
+		return nil, st.Err()
 	}
 
 	return &data.GetUserResponse{
@@ -103,7 +141,7 @@ func (us *UserService) UpdateUser(ctx context.Context, req *data.UpdateUserReque
 
 // StreamUsers Streams existing user with manual delay for demo
 func (us *UserService) StreamUsers(req *data.GetUserRequest, stream data.UserService_StreamUsersServer) error {
-	fmt.Println("Getting user: ", req)
+	fmt.Println("Streaming user: ", req)
 
 	value, exists := userCache[req.Name]
 
@@ -125,7 +163,7 @@ func (us *UserService) StreamUsers(req *data.GetUserRequest, stream data.UserSer
 	})
 
 	stream.Context().Done()
-	fmt.Println("Completed Getting user: ", req)
+	fmt.Println("Completed Streaming user: ", req)
 
 	return nil
 }

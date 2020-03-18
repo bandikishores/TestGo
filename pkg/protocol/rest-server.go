@@ -12,6 +12,8 @@ import (
 	"bandi.com/main/pkg/data"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
+
+	"github.com/gogo/gateway"
 )
 
 // If our header starts with X-Custom, we let it through
@@ -27,7 +29,15 @@ func RunRestServer(ctx context.Context, grpcPort, httpPort string) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	mux := runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(headerMatcher))
+	jsonpb := &gateway.JSONPb{
+		EmitDefaults: true,
+		Indent:       "  ",
+		OrigName:     true,
+	}
+	mux := runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(headerMatcher),
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpb),
+		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
+	)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	if err := data.RegisterUserServiceHandlerFromEndpoint(ctx, mux, "localhost:"+grpcPort, opts); err != nil {

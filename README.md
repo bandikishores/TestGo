@@ -53,7 +53,7 @@ Sample project to test out go features
             }'
       ```
   2) Get User
-      `curl -X GET http://localhost:18081/organizations/bandi/users/kishore?queryParam1=123 -H 'Host: localhost:18081' --header 'X-Custom-orgname: someCustom'`
+      `curl -X GET http://localhost:18081/organizations/bandi/users/kishore?queryParam1=123 -H 'Host: localhost:18081' --header 'X-Custom-orgname: someCustom' --header 'authorization: bearer some_token_if8y3498eufhkfj'`
 
             OR
 
