@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -9,7 +8,6 @@ import (
 	constants "bandi.com/main/data"
 	"bandi.com/main/pkg/data"
 	"golang.org/x/net/context"
-	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -69,29 +67,28 @@ func (us *UserService) GetUser(ctx context.Context, req *data.GetUserRequest) (*
 
 	value, exists := userCache[req.Name]
 
-	if !exists {
+	/*	if !exists {
 		return nil, errors.New(fmt.Sprintf("user %s doesn't exist", req.Name))
-	}
+	}*/
 
-	if false {
+	if !exists {
 		st := status.New(codes.NotFound, fmt.Sprintf("user %s doesn't exist", req.Name))
 		desc := "The username Doesn't exist, please give a valid username"
 
-		/*
-			customProtoError := &data.Error{
-				Message:         "Check username",
-				Code:            1404,
-				Type:            "Skyflow",
-				DetailedMessage: desc,
-			}
-		*/
-		v := &errdetails.BadRequest_FieldViolation{
+		customProtoError := &data.Error{
+			Message:         "Check username",
+			Code:            1404,
+			Type:            "Skyflow",
+			DetailedMessage: desc,
+		}
+
+		/*v := &errdetails.BadRequest_FieldViolation{
 			Field:       "username",
 			Description: desc,
 		}
 		customProtoError := &errdetails.BadRequest{}
 		customProtoError.FieldViolations = append(customProtoError.FieldViolations, v)
-
+		*/
 		st, err := st.WithDetails(customProtoError)
 
 		if err != nil {

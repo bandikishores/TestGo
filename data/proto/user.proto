@@ -9,6 +9,8 @@ import "gogoproto/gogo.proto";
 
 import "addressbook.proto";
 
+option (gogoproto.goproto_registration) = true;
+
 option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 	info: {
 		title: "Bandi User";

@@ -11,6 +11,7 @@ syntax = "proto3";
 package data;
 
 import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
 // [END declaration]
 
 // [START java_declaration]
@@ -20,6 +21,8 @@ option java_outer_classname = "AddressBookProtos";
 
 // [START csharp_declaration]
 option csharp_namespace = "Google.Protobuf.Examples.AddressBook";
+
+option (gogoproto.goproto_registration) = true;
 // [END csharp_declaration]
 
 // [START messages]
