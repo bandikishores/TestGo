@@ -50,7 +50,7 @@ func UnaryServerInterceptor(authFunc Func) grpc.UnaryServerInterceptor {
 		customError, ok := err.(*myErrors.CustomError)
 		if ok {
 			// Convert to grpc error
-			fmt.Printf("Custom Error was %+v\n", customError.Error())
+			fmt.Printf("Custom Error was %+v\n", customError.BaseError())
 			return val, customError.GetStatusError().Err()
 		}
 		return val, err

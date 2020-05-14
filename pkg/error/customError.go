@@ -40,6 +40,11 @@ func (ce *CustomError) WithDetails(details ...proto.Message) *CustomError {
 	return ce
 }
 
+// BaseError ...
+func (ce *CustomError) BaseError() error {
+	return ce.Err
+}
+
 // CustomError ...
 func (ce *CustomError) Error() string {
 	return ce.Err.Error()
