@@ -7,11 +7,24 @@ import (
 
 	constants "bandi.com/main/data"
 	"bandi.com/main/pkg/data"
+	myErrors "bandi.com/main/pkg/error"
+	"github.com/gogo/status"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
+
+// Error - sdf
+type Error struct {
+	Message         string `json:"message,omitempty"`
+	Code            int32  `json:"code,omitempty"`
+	Type            string `json:"type,omitempty"`
+	DetailedMessage string `json:"detailed_message,omitempty"`
+}
+
+func (e Error) Error() string {
+	return e.Message
+}
 
 var userCache map[string]*data.User = make(map[string]*data.User)
 
@@ -72,7 +85,7 @@ func (us *UserService) GetUser(ctx context.Context, req *data.GetUserRequest) (*
 	}*/
 
 	if !exists {
-		st := status.New(codes.NotFound, fmt.Sprintf("user %s doesn't exist", req.Name))
+
 		desc := "The username Doesn't exist, please give a valid username"
 
 		customProtoError := &data.Error{
@@ -82,6 +95,13 @@ func (us *UserService) GetUser(ctx context.Context, req *data.GetUserRequest) (*
 			DetailedMessage: desc,
 		}
 
+		/*	st := status.Newf(codes.NotFound, "user %s doesn't exist", req.Name)
+			st, err := st.WithDetails(customProtoError)
+			if err != nil {
+				panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
+			}
+			return nil, st.Err()*/
+
 		/*v := &errdetails.BadRequest_FieldViolation{
 			Field:       "username",
 			Description: desc,
@@ -89,12 +109,25 @@ func (us *UserService) GetUser(ctx context.Context, req *data.GetUserRequest) (*
 		customProtoError := &errdetails.BadRequest{}
 		customProtoError.FieldViolations = append(customProtoError.FieldViolations, v)
 		*/
-		st, err := st.WithDetails(customProtoError)
+		//if err != nil {
+		//	panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
+		//}
+		/*
+			v := &errdetails.BadRequest_FieldViolation{
+				Field:       "username",
+				Description: desc,
+			}
+			br := &errdetails.BadRequest{}
+			br.FieldViolations = append(br.FieldViolations, v)
+			st, err = st.WithDetails(br)
+			//"bandi.com/main/pkg/data.Error"
+			if err != nil {
+				panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
+			}*/
+		customError := myErrors.NewCustomErrorf(codes.NotFound, "user %s doesn't exist", req.Name)
+		customError = customError.WithDetails(customProtoError)
+		return nil, customError
 
-		if err != nil {
-			panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
-		}
-		return nil, st.Err()
 	}
 
 	return &data.GetUserResponse{
@@ -143,8 +176,29 @@ func (us *UserService) StreamUsers(req *data.GetUserRequest, stream data.UserSer
 	value, exists := userCache[req.Name]
 
 	if !exists {
-		fmt.Printf(fmt.Sprintf("user %s doesn't exist", req.Name))
-		return fmt.Errorf("user %s doesn't exist", req.Name)
+		st := status.Newf(codes.NotFound, "user %s doesn't exist", req.Name)
+		desc := "The username Doesn't exist, please give a valid username"
+
+		customProtoError := &data.Error{
+			Message:         "Check username",
+			Code:            1404,
+			Type:            "Skyflow",
+			DetailedMessage: desc,
+		}
+
+		/*v := &errdetails.BadRequest_FieldViolation{
+			Field:       "username",
+			Description: desc,
+		}
+		customProtoError := &errdetails.BadRequest{}
+		customProtoError.FieldViolations = append(customProtoError.FieldViolations, v)
+		*/
+		st, err := st.WithDetails(customProtoError)
+
+		if err != nil {
+			panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
+		}
+		return st.Err()
 	}
 
 	stream.Send(&data.GetUserResponse{

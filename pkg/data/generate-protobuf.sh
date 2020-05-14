@@ -8,8 +8,8 @@ GOGOPATH=$GOPATH/pkg/mod/github.com/gogo/protobuf@v1.3.1
 protoc="protoc
     -I.
     -I$GOPATH/pkg/mod/cache/download/github.com/gogo/googleapis
-    -I$GOPATH/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.12.2/third_party/googleapis
-    -I$GOPATH/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.12.2
+    -I$GOPATH/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.14.5/third_party/googleapis
+    -I$GOPATH/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.14.5
     -I$GOPATH/pkg/mod/github.com/googleapis/googleapis@v0.0.0-20200303215514-541b1ded4aba/
     -I$GOGOPATH/protobuf
     -I$GOGOPATH

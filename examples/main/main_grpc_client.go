@@ -4,14 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"reflect"
 	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
+	"github.com/gogo/status"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 
 	pb "bandi.com/main/pkg/data"
 )
@@ -46,7 +47,6 @@ func main() {
 	})
 	if err != nil {
 		entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred ")
-		return
 	}
 	entry.Infof("Got Stream Response : %v", resp)
 
@@ -54,7 +54,7 @@ func main() {
 		Name: "kishore",
 	})
 	if err != nil {
-		entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred ")
+		entry.WithField(logrus.ErrorKey, err).Errorf("Error occurred %v", err)
 		return
 	}
 	entry.Infof("Got Get Response : %v", getResp)
@@ -112,11 +112,13 @@ func GetUsers(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse,
 			for _, detail := range st.Details() {
 				switch t := detail.(type) {
 				case *pb.Error:
-					fmt.Println("Oops! Your request was rejected by the server.")
+					fmt.Println("Oops! Get request was rejected by the server.")
 					fmt.Printf("The %q field was wrong:\n", t.Message)
 					fmt.Printf("\t%s\n", t.Code)
 					fmt.Printf("\t%s\n", t.Type)
 					fmt.Printf("\t%s\n", t.DetailedMessage)
+				default:
+					fmt.Println("Object found was %v with type %v", detail, reflect.TypeOf(detail))
 				}
 			}
 
@@ -168,6 +170,21 @@ func StreamUsers(ctx context.Context, req *pb.GetUserRequest) ([]*pb.GetUserResp
 		usersStream, err := client.StreamUsers(ctx, req)
 		if err != nil {
 			entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred while trying to Stream Users Table")
+
+			st := status.Convert(err)
+			for _, detail := range st.Details() {
+				switch t := detail.(type) {
+				case *pb.Error:
+					fmt.Println("Oops! Stream request was rejected by the server.")
+					fmt.Printf("The %q field was wrong:\n", t.Message)
+					fmt.Printf("\t%s\n", t.Code)
+					fmt.Printf("\t%s\n", t.Type)
+					fmt.Printf("\t%s\n", t.DetailedMessage)
+				default:
+					fmt.Println("Object found was %v with type %v", detail, reflect.TypeOf(detail))
+				}
+			}
+
 			return nil, err
 		}
 
@@ -179,6 +196,23 @@ func StreamUsers(ctx context.Context, req *pb.GetUserRequest) ([]*pb.GetUserResp
 				return userResponses, nil
 			}
 			if err != nil {
+				if err != nil {
+					entry.WithField(logrus.ErrorKey, err).Errorln("Error occurred while trying to Stream Users Table")
+
+					st := status.Convert(err)
+					for _, detail := range st.Details() {
+						switch t := detail.(type) {
+						case *pb.Error:
+							fmt.Println("Oops! Stream request was rejected by the server.")
+							fmt.Printf("The %q field was wrong:\n", t.Message)
+							fmt.Printf("\t%s\n", t.Code)
+							fmt.Printf("\t%s\n", t.Type)
+							fmt.Printf("\t%s\n", t.DetailedMessage)
+						default:
+							fmt.Println("Object found was %v with type %v", detail, reflect.TypeOf(detail))
+						}
+					}
+				}
 				return nil, errors.Wrap(err, fmt.Sprintf("Received Error : "))
 			}
 			userResponses = append(userResponses, userResponse)

@@ -51,9 +51,9 @@ GOGO_APIS = $(BIN)/google-apis
 $(BIN)/google-apis: | $(BASE) ; $(info $(M) installing gogoapis...)
 	$Q $(GO) get -u github.com/gogo/googleapis
 
-GRPC_1.12.1 = $(BIN)/grpc-gateway@v1.12.2
-$(BIN)/grpc-gateway@v1.12.2: | $(BASE) ; $(info $(M) installing grpc-gateway@v1.12.2...)
-	$Q $(GO)  get -v github.com/grpc-ecosystem/grpc-gateway@v1.12.2
+GRPC_1.12.1 = $(BIN)/grpc-gateway@v1.14.5
+$(BIN)/grpc-gateway@v1.14.5: | $(BASE) ; $(info $(M) installing grpc-gateway@v1.14.5...)
+	$Q $(GO)  get -v github.com/grpc-ecosystem/grpc-gateway@v1.14.5
 
 # Dependency management
 .PHONY: download
@@ -61,7 +61,7 @@ download:
 	$Q cd $(BASE) && $(GO) mod download; $(info $(M) retrieving dependencies…)
 
 .PHONY: install-dependencies 
-install-dependencies: $(BIN)/golint $(BIN)/protoc-gen-grpc-gateway $(BIN)/protoc-gen-swagger $(BIN)/protoc-gen-go $(PROTOC_GEN_GOGO) $(GOGO_APIS) $(grpc-gateway@v1.12.2)  ## Install dependent go tools
+install-dependencies: $(BIN)/golint $(BIN)/protoc-gen-grpc-gateway $(BIN)/protoc-gen-swagger $(BIN)/protoc-gen-go $(PROTOC_GEN_GOGO) $(GOGO_APIS) $(grpc-gateway@v1.14.5)  ## Install dependent go tools
 
 # Tests
 $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)

@@ -21,7 +21,7 @@
   "paths": {
     "/organizations/{orgName}/streamusers/{name}": {
       "get": {
-        "operationId": "StreamUsers",
+        "operationId": "UserService_StreamUsers",
         "responses": {
           "200": {
             "description": "A successful response.(streaming responses)",
@@ -43,6 +43,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -75,7 +81,7 @@
       "post": {
         "summary": "Summary: Create Service rpc",
         "description": "Description Create User",
-        "operationId": "CreateUser",
+        "operationId": "UserService_CreateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -88,6 +94,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -125,7 +137,7 @@
       "get": {
         "summary": "Summary: Get Service rpc",
         "description": "Description Get User",
-        "operationId": "GetUser",
+        "operationId": "UserService_GetUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -138,6 +150,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -176,7 +194,7 @@
         }
       },
       "delete": {
-        "operationId": "DeleteUser",
+        "operationId": "UserService_DeleteUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -189,6 +207,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -211,7 +235,7 @@
         ]
       },
       "put": {
-        "operationId": "UpdateUser",
+        "operationId": "UserService_UpdateUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -224,6 +248,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -256,7 +286,7 @@
     },
     "/streamusers/{name}": {
       "get": {
-        "operationId": "StreamUsers2",
+        "operationId": "UserService_StreamUsers2",
         "responses": {
           "200": {
             "description": "A successful response.(streaming responses)",
@@ -278,6 +308,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -310,7 +346,7 @@
       "get": {
         "summary": "Summary: Get Service rpc",
         "description": "Description Get User",
-        "operationId": "GetUser2",
+        "operationId": "UserService_GetUser2",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -323,6 +359,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -361,7 +403,7 @@
         }
       },
       "delete": {
-        "operationId": "DeleteUser2",
+        "operationId": "UserService_DeleteUser2",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -374,6 +416,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -396,7 +444,7 @@
         ]
       },
       "put": {
-        "operationId": "UpdateUser2",
+        "operationId": "UserService_UpdateUser2",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -409,6 +457,12 @@
             "schema": {
               "type": "string",
               "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
             }
           }
         },
@@ -542,6 +596,27 @@
         "ID": {
           "type": "string",
           "readOnly": true
+        }
+      }
+    },
+    "gatewayruntimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
         }
       }
     },

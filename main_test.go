@@ -1,13 +1,20 @@
 package main
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	pb "bandi.com/main/pkg/data"
 )
+
+var once sync.Once
+var globalString string
+var i int32 = 0
 
 func TestMain(t *testing.T) {
 	want := "dummy"
@@ -32,4 +39,21 @@ func TestProto(t *testing.T) {
 
 func TestGrpcProto(t *testing.T) {
 
+}
+
+func GetString() string {
+	if globalString == "" {
+		once.Do(func() {
+			if i == 0 {
+				i++
+				return
+			}
+			id, err := uuid.NewUUID()
+			if err != nil {
+				panic(fmt.Sprintf("Error occurred while creating UUID %v", err))
+			}
+			globalString = id.String()
+		})
+	}
+	return globalString
 }

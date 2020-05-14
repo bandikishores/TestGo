@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"bandi.com/main/data"
+	myErrors "bandi.com/main/pkg/error"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc"
@@ -42,7 +43,17 @@ func UnaryServerInterceptor(authFunc Func) grpc.UnaryServerInterceptor {
 				return nil, err
 			}
 		}
-		return handler(newCtx, req)
+		val, err := handler(newCtx, req)
+		if err != nil {
+			fmt.Printf("Error was %+v\n", err)
+		}
+		customError, ok := err.(*myErrors.CustomError)
+		if ok {
+			// Convert to grpc error
+			fmt.Printf("Custom Error was %+v\n", customError.Error())
+			return val, customError.GetStatusError().Err()
+		}
+		return val, err
 	}
 }
 
@@ -60,7 +71,17 @@ func StreamServerInterceptor(authFunc Func) grpc.StreamServerInterceptor {
 		}
 		wrapped := grpc_middleware.WrapServerStream(stream)
 		wrapped.WrappedContext = newCtx
-		return handler(srv, wrapped)
+		err = handler(srv, wrapped)
+		if err != nil {
+			fmt.Printf("Error was %+v\n", err)
+		}
+		customError, ok := err.(*myErrors.CustomError)
+		if ok {
+			// Convert to grpc error
+			fmt.Printf("Custom Error was %+v\n", err)
+			return customError.GetStatusError().Err()
+		}
+		return err
 	}
 }
 

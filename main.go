@@ -9,6 +9,8 @@ import (
 	"net"
 	"os"
 	"runtime/pprof"
+	"sync"
+	"time"
 
 	"bandi.com/main/data"
 	pb "bandi.com/main/pkg/data"
@@ -16,6 +18,8 @@ import (
 	"bandi.com/main/state"
 	"github.com/golang/protobuf/proto"
 )
+
+var channel chan struct{}
 
 // ResolvedAddresses of host.
 func getResolvedAddresses(host string) *net.TCPAddr {
@@ -64,6 +68,38 @@ func main() {
 
 	// TestContext(ctx)
 
+}
+
+// TestGoRoutine - Sample Test
+func TestGoRoutine() {
+	channel = make(chan struct{})
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		for i := 0; i < 10; i++ {
+			time.Sleep(1 * time.Second)
+			channel <- struct{}{}
+			log.Printf("Sent")
+			channel <- struct{}{}
+			log.Printf("Sent")
+			channel <- struct{}{}
+			log.Printf("Sent")
+		}
+	}()
+	go func() {
+		for i := 0; i < 10; i++ {
+			<-channel
+			log.Printf("Got")
+		}
+	}()
+
+	wg.Wait()
+
+	if true {
+		return
+	}
 }
 
 // TestContext - Some test
