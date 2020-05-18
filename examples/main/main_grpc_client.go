@@ -114,11 +114,11 @@ func GetUsers(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse,
 				case *pb.Error:
 					fmt.Println("Oops! Get request was rejected by the server.")
 					fmt.Printf("The %q field was wrong:\n", t.Message)
-					fmt.Printf("\t%s\n", t.Code)
+					fmt.Printf("\t%d\n", t.Code)
 					fmt.Printf("\t%s\n", t.Type)
 					fmt.Printf("\t%s\n", t.DetailedMessage)
 				default:
-					fmt.Println("Object found was %v with type %v", detail, reflect.TypeOf(detail))
+					fmt.Printf("Object found was %v with type %v", detail, reflect.TypeOf(detail))
 				}
 			}
 
@@ -177,11 +177,11 @@ func StreamUsers(ctx context.Context, req *pb.GetUserRequest) ([]*pb.GetUserResp
 				case *pb.Error:
 					fmt.Println("Oops! Stream request was rejected by the server.")
 					fmt.Printf("The %q field was wrong:\n", t.Message)
-					fmt.Printf("\t%s\n", t.Code)
+					fmt.Printf("\t%d\n", t.Code)
 					fmt.Printf("\t%s\n", t.Type)
 					fmt.Printf("\t%s\n", t.DetailedMessage)
 				default:
-					fmt.Println("Object found was %v with type %v", detail, reflect.TypeOf(detail))
+					fmt.Printf("Object found was %v with type %v", detail, reflect.TypeOf(detail))
 				}
 			}
 
@@ -205,11 +205,11 @@ func StreamUsers(ctx context.Context, req *pb.GetUserRequest) ([]*pb.GetUserResp
 						case *pb.Error:
 							fmt.Println("Oops! Stream request was rejected by the server.")
 							fmt.Printf("The %q field was wrong:\n", t.Message)
-							fmt.Printf("\t%s\n", t.Code)
+							fmt.Printf("\t%d\n", t.Code)
 							fmt.Printf("\t%s\n", t.Type)
 							fmt.Printf("\t%s\n", t.DetailedMessage)
 						default:
-							fmt.Println("Object found was %v with type %v", detail, reflect.TypeOf(detail))
+							fmt.Printf("Object found was %v with type %v", detail, reflect.TypeOf(detail))
 						}
 					}
 				}
