@@ -33,6 +33,27 @@ func (ce *CustomError) NewCustomWrapError(c codes.Code, err error) *CustomError 
 }
 
 // WithDetails - Adds Proto Error Details so Clients can get additional information about the error
+/**
+The way this works for pushing additional information to clients.
+		customProtoError := &data.Error{
+			Message:         "Check username",
+			Code:            1404,
+			Type:            "Skyflow",
+			DetailedMessage: desc,
+		}
+		customError = customError.WithDetails(customProtoError)
+
+To use Standard Errors Defined by grpc for additional information
+		customError := myErrors.NewCustomErrorf(codes.NotFound, "user %s doesn't exist", req.Name)
+		v := &rpc.BadRequest_FieldViolation{
+			Field:       "username",
+			Description: desc,
+		}
+		br := &rpc.BadRequest{}
+		br.FieldViolations = append(br.FieldViolations, v)
+		customError = customError.WithDetails(br)
+
+*/
 func (ce *CustomError) WithDetails(details ...proto.Message) *CustomError {
 	for _, detail := range details {
 		ce.ProtoDetails = append(ce.ProtoDetails, detail)
@@ -61,4 +82,30 @@ func (ce *CustomError) GetStatusError() *status.Status {
 	}
 
 	return status
+}
+
+// ConvertToGRPCError ...
+func ConvertToGRPCError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	switch castedError := err.(type) {
+	case *CustomError:
+		fmt.Printf("Custom Base Error was %+v\n", castedError.BaseError())
+		if len(castedError.ProtoDetails) > 0 {
+			for _, detail := range castedError.ProtoDetails {
+				fmt.Printf("Custom Detail Error was %+v\n", detail)
+			}
+		}
+		return castedError.GetStatusError().Err()
+	default:
+		fmt.Printf("Default Error was %+v\n", castedError)
+		s, ok := status.FromError(err)
+		if ok {
+			return s.Err()
+		}
+		// Create a new Status Error
+		return status.Newf(codes.Internal, err.Error()).Err()
+	}
 }

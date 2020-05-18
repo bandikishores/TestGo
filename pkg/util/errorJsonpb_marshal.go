@@ -44,9 +44,9 @@ func (j *ErrorJSONPb) Marshal(v interface{}) ([]byte, error) {
 		fmt.Println("Marshal Type ", status, reflect.TypeOf(v))
 		v = errorChunk(status)
 	} else {
-		streamProtoMessage, ok := v.(map[string]proto.Message)
+		_, ok := v.(map[string]proto.Message)
 		if ok {
-			fmt.Println("Stream Marshal Type ", streamProtoMessage, reflect.TypeOf(v))
+			//fmt.Println("Stream Marshal Type ", streamProtoMessage, reflect.TypeOf(v))
 		}
 	}
 

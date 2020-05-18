@@ -8,6 +8,7 @@ import (
 	constants "bandi.com/main/data"
 	"bandi.com/main/pkg/data"
 	myErrors "bandi.com/main/pkg/error"
+	"github.com/gogo/googleapis/google/rpc"
 	"github.com/gogo/status"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
@@ -112,19 +113,15 @@ func (us *UserService) GetUser(ctx context.Context, req *data.GetUserRequest) (*
 		//if err != nil {
 		//	panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
 		//}
-		/*
-			v := &errdetails.BadRequest_FieldViolation{
-				Field:       "username",
-				Description: desc,
-			}
-			br := &errdetails.BadRequest{}
-			br.FieldViolations = append(br.FieldViolations, v)
-			st, err = st.WithDetails(br)
-			//"bandi.com/main/pkg/data.Error"
-			if err != nil {
-				panic(fmt.Sprintf("Unexpected error attaching metadata: %v", err))
-			}*/
+
 		customError := myErrors.NewCustomErrorf(codes.NotFound, "user %s doesn't exist", req.Name)
+		v := &rpc.BadRequest_FieldViolation{
+			Field:       "username",
+			Description: desc,
+		}
+		br := &rpc.BadRequest{}
+		br.FieldViolations = append(br.FieldViolations, v)
+		customError = customError.WithDetails(br)
 		customError = customError.WithDetails(customProtoError)
 		return nil, customError
 

@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/gogo/gateway v1.1.0
-	github.com/gogo/googleapis v1.3.1 // indirect
+	github.com/gogo/googleapis v1.3.1
 	github.com/gogo/protobuf v1.3.1
 	github.com/gogo/status v1.1.0
 	github.com/golang/protobuf v1.3.2

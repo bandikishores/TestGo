@@ -44,16 +44,7 @@ func UnaryServerInterceptor(authFunc Func) grpc.UnaryServerInterceptor {
 			}
 		}
 		val, err := handler(newCtx, req)
-		if err != nil {
-			fmt.Printf("Error was %+v\n", err)
-		}
-		customError, ok := err.(*myErrors.CustomError)
-		if ok {
-			// Convert to grpc error
-			fmt.Printf("Custom Error was %+v\n", customError.BaseError())
-			return val, customError.GetStatusError().Err()
-		}
-		return val, err
+		return val, myErrors.ConvertToGRPCError(err)
 	}
 }
 
@@ -72,16 +63,7 @@ func StreamServerInterceptor(authFunc Func) grpc.StreamServerInterceptor {
 		wrapped := grpc_middleware.WrapServerStream(stream)
 		wrapped.WrappedContext = newCtx
 		err = handler(srv, wrapped)
-		if err != nil {
-			fmt.Printf("Error was %+v\n", err)
-		}
-		customError, ok := err.(*myErrors.CustomError)
-		if ok {
-			// Convert to grpc error
-			fmt.Printf("Custom Error was %+v\n", err)
-			return customError.GetStatusError().Err()
-		}
-		return err
+		return myErrors.ConvertToGRPCError(err)
 	}
 }
 

@@ -138,7 +138,7 @@ func handleStreamError(ctx context.Context, err error) *runtime.StreamError {
 	fmt.Println("", grpcDetails)
 	httpCode := runtime.HTTPStatusFromCode(grpcCode)
 	return &runtime.StreamError{
-		//GrpcCode:   int32(grpcCode),
+		GrpcCode:   int32(grpcCode),
 		HttpCode:   int32(httpCode),
 		HttpStatus: http.StatusText(httpCode),
 		Message:    msg,
@@ -205,7 +205,7 @@ func customHTTPError(ctx context.Context, mux *runtime.ServeMux, marshaler runti
 
 	streamError := handleStreamError(ctx, err)
 	customStreamError := &CustomStreamError{
-		//GrpcCode:   int32(grpcCode),
+		GrpcCode:   streamError.GrpcCode,
 		HTTPCode:   streamError.HttpCode,
 		HTTPStatus: streamError.HttpStatus,
 		Message:    streamError.Message,
