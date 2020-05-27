@@ -2,6 +2,7 @@ syntax = "proto3";
 package data;
 
 import "protoc-gen-swagger/options/annotations.proto";
+import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -14,7 +15,7 @@ message Timestamp {
 message BandiUser {
     // @inject_tag: gorm:"primary_key"
     string username = 1;
-    // @inject_tag: gorm:"foreignkey:UserName;association_foreignkey:Username"
+    // @inject_tag: gorm:"ForeignKey:UserName"
     repeated BandiCreditCard CreditCards = 2;
 }
 
@@ -25,7 +26,7 @@ message BandiUserDetails {
     string firstname = 1;
     // @inject_tag: gorm:"primary_key"
     string lastname = 2;
-    // @inject_tag: gorm:"foreignkey:ForeignKeyUserName;association_foreignkey:Username"
+    // @inject_tag: gorm:"ForeignKey:ForeignKeyUserName;association_foreignkey:Username"
     BandiUser user = 3;
     string foreignKeyUserName = 4;
 }
@@ -41,7 +42,7 @@ message BandiCreditCard {
         title: "cvv",
         description: "Password for this User"
     }];
-    // @inject_tag: gorm:"type:timestamp;index:expiry;not null;"
+    // @inject_tag: gorm:"type:timestamp;index:expiry"
     Timestamp expiry = 3 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
         title: "Password",
         description: "Password for this User"
@@ -51,13 +52,47 @@ message BandiCreditCard {
         title: "ignoreME",
         description: "Test Internal Field, Don't store in DB"
     }];
+    // @inject_tag: sql:"type:string REFERENCES bandi_users(username)"
     string userName = 5;
 
     // Kish - TODO : Find a way to use gorm.Models here.
 
-    // @inject_tag: gorm:"primary_key"
+    // @inject_tag: gorm:"primary_key;AUTO_INCREMENT"
     string ID = 6 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
         title: "ID",
         description: "A unique ID/Row Token for the Credit Card"
       }];
+}
+
+
+message GetBandiUserRequest{
+    string name = 1;
+}
+
+message GetBandiUserResponse{
+    BandiUser user = 1;
+}
+
+message CreateBandiUserRequest {
+    BandiUser user = 1;
+}
+
+message CreateBandiUserResponse {
+    string name = 1;
+}
+
+service BandiService {
+    
+  rpc GetBandiUser(GetBandiUserRequest) returns (GetBandiUserResponse){
+      option (google.api.http) = {
+          get: "/objects/users/{name}"
+      };
+  }
+
+  rpc CreateBandiUser(CreateBandiUserRequest) returns (CreateBandiUserResponse){
+      option (google.api.http) = {
+          post: "/objects/users"
+          body: "user"
+      };
+    }
 }

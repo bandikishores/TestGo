@@ -32,6 +32,7 @@ func RunGrpcServer(ctx context.Context, port string) error {
 		)),
 	)
 	data.RegisterUserServiceServer(server, service.NewUserService())
+	data.RegisterBandiServiceServer(server, service.NewBandiUserService())
 
 	// graceful shutdown
 	c := make(chan os.Signal, 1)

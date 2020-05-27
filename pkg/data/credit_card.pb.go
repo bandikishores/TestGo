@@ -4,12 +4,17 @@
 package data
 
 import (
+	context "context"
 	fmt "fmt"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -27,9 +32,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Timestamp struct {
 	Timestamp            *types.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
-	XXX_unrecognized     []byte           `json:"-"`
-	XXX_sizecache        int32            `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte           `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32            `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *Timestamp) Reset()         { *m = Timestamp{} }
@@ -66,11 +71,11 @@ func (m *Timestamp) GetTimestamp() *types.Timestamp {
 type BandiUser struct {
 	// @inject_tag: gorm:"primary_key"
 	Username string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty" gorm:"primary_key"`
-	// @inject_tag: gorm:"foreignkey:UserName;association_foreignkey:Username"
-	CreditCards          []*BandiCreditCard `protobuf:"bytes,2,rep,name=CreditCards,proto3" json:"CreditCards,omitempty" gorm:"foreignkey:UserName;association_foreignkey:Username"`
-	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
-	XXX_unrecognized     []byte             `json:"-"`
-	XXX_sizecache        int32              `json:"-"`
+	// @inject_tag: gorm:"ForeignKey:UserName"
+	CreditCards          []*BandiCreditCard `protobuf:"bytes,2,rep,name=CreditCards,proto3" json:"CreditCards,omitempty" gorm:"ForeignKey:UserName"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte             `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32              `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *BandiUser) Reset()         { *m = BandiUser{} }
@@ -118,12 +123,12 @@ type BandiUserDetails struct {
 	Firstname string `protobuf:"bytes,1,opt,name=firstname,proto3" json:"firstname,omitempty" gorm:"primary_key"`
 	// @inject_tag: gorm:"primary_key"
 	Lastname string `protobuf:"bytes,2,opt,name=lastname,proto3" json:"lastname,omitempty" gorm:"primary_key"`
-	// @inject_tag: gorm:"foreignkey:ForeignKeyUserName;association_foreignkey:Username"
-	User                 *BandiUser `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty" gorm:"foreignkey:ForeignKeyUserName;association_foreignkey:Username"`
+	// @inject_tag: gorm:"ForeignKey:ForeignKeyUserName;association_foreignkey:Username"
+	User                 *BandiUser `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty" gorm:"ForeignKey:ForeignKeyUserName;association_foreignkey:Username"`
 	ForeignKeyUserName   string     `protobuf:"bytes,4,opt,name=foreignKeyUserName,proto3" json:"foreignKeyUserName,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
-	XXX_unrecognized     []byte     `json:"-"`
-	XXX_sizecache        int32      `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte     `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32      `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *BandiUserDetails) Reset()         { *m = BandiUserDetails{} }
@@ -183,16 +188,17 @@ type BandiCreditCard struct {
 	Number string `protobuf:"bytes,1,opt,name=number,proto3" json:"number,omitempty" gorm:"unique;not null;size:16;unique_index"`
 	// @inject_tag: gorm:"not null" bandi:"only4digits"
 	Cvv int32 `protobuf:"varint,2,opt,name=cvv,proto3" json:"cvv,omitempty" gorm:"not null" bandi:"only4digits"`
-	// @inject_tag: gorm:"type:timestamp;index:expiry;not null;"
-	Expiry *Timestamp `protobuf:"bytes,3,opt,name=expiry,proto3" json:"expiry,omitempty" gorm:"type:timestamp;index:expiry;not null;"`
+	// @inject_tag: gorm:"type:timestamp;index:expiry"
+	Expiry *Timestamp `protobuf:"bytes,3,opt,name=expiry,proto3" json:"expiry,omitempty" gorm:"type:timestamp;index:expiry"`
 	// @inject_tag: gorm:"-"
 	IgnoreME string `protobuf:"bytes,4,opt,name=ignoreME,proto3" json:"ignoreME,omitempty" gorm:"-"`
-	UserName string `protobuf:"bytes,5,opt,name=userName,proto3" json:"userName,omitempty"`
-	// @inject_tag: gorm:"primary_key"
-	ID                   string   `protobuf:"bytes,6,opt,name=ID,proto3" json:"ID,omitempty" gorm:"primary_key"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	// @inject_tag: sql:"type:string REFERENCES bandi_users(username)"
+	UserName string `protobuf:"bytes,5,opt,name=userName,proto3" json:"userName,omitempty" sql:"type:string REFERENCES bandi_users(username)"`
+	// @inject_tag: gorm:"primary_key;AUTO_INCREMENT"
+	ID                   string   `protobuf:"bytes,6,opt,name=ID,proto3" json:"ID,omitempty" gorm:"primary_key;AUTO_INCREMENT"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *BandiCreditCard) Reset()         { *m = BandiCreditCard{} }
@@ -261,6 +267,158 @@ func (m *BandiCreditCard) GetID() string {
 	return ""
 }
 
+type GetBandiUserRequest struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
+}
+
+func (m *GetBandiUserRequest) Reset()         { *m = GetBandiUserRequest{} }
+func (m *GetBandiUserRequest) String() string { return proto.CompactTextString(m) }
+func (*GetBandiUserRequest) ProtoMessage()    {}
+func (*GetBandiUserRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dc3303e5a2b31807, []int{4}
+}
+func (m *GetBandiUserRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetBandiUserRequest.Unmarshal(m, b)
+}
+func (m *GetBandiUserRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetBandiUserRequest.Marshal(b, m, deterministic)
+}
+func (m *GetBandiUserRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetBandiUserRequest.Merge(m, src)
+}
+func (m *GetBandiUserRequest) XXX_Size() int {
+	return xxx_messageInfo_GetBandiUserRequest.Size(m)
+}
+func (m *GetBandiUserRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetBandiUserRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetBandiUserRequest proto.InternalMessageInfo
+
+func (m *GetBandiUserRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type GetBandiUserResponse struct {
+	User                 *BandiUser `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte     `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32      `json:"-" yaml:"-" xml:"-" gorm:"-"`
+}
+
+func (m *GetBandiUserResponse) Reset()         { *m = GetBandiUserResponse{} }
+func (m *GetBandiUserResponse) String() string { return proto.CompactTextString(m) }
+func (*GetBandiUserResponse) ProtoMessage()    {}
+func (*GetBandiUserResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dc3303e5a2b31807, []int{5}
+}
+func (m *GetBandiUserResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetBandiUserResponse.Unmarshal(m, b)
+}
+func (m *GetBandiUserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetBandiUserResponse.Marshal(b, m, deterministic)
+}
+func (m *GetBandiUserResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetBandiUserResponse.Merge(m, src)
+}
+func (m *GetBandiUserResponse) XXX_Size() int {
+	return xxx_messageInfo_GetBandiUserResponse.Size(m)
+}
+func (m *GetBandiUserResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetBandiUserResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetBandiUserResponse proto.InternalMessageInfo
+
+func (m *GetBandiUserResponse) GetUser() *BandiUser {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+type CreateBandiUserRequest struct {
+	User                 *BandiUser `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte     `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32      `json:"-" yaml:"-" xml:"-" gorm:"-"`
+}
+
+func (m *CreateBandiUserRequest) Reset()         { *m = CreateBandiUserRequest{} }
+func (m *CreateBandiUserRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateBandiUserRequest) ProtoMessage()    {}
+func (*CreateBandiUserRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dc3303e5a2b31807, []int{6}
+}
+func (m *CreateBandiUserRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateBandiUserRequest.Unmarshal(m, b)
+}
+func (m *CreateBandiUserRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateBandiUserRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateBandiUserRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateBandiUserRequest.Merge(m, src)
+}
+func (m *CreateBandiUserRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateBandiUserRequest.Size(m)
+}
+func (m *CreateBandiUserRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateBandiUserRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateBandiUserRequest proto.InternalMessageInfo
+
+func (m *CreateBandiUserRequest) GetUser() *BandiUser {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+type CreateBandiUserResponse struct {
+	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
+}
+
+func (m *CreateBandiUserResponse) Reset()         { *m = CreateBandiUserResponse{} }
+func (m *CreateBandiUserResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateBandiUserResponse) ProtoMessage()    {}
+func (*CreateBandiUserResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dc3303e5a2b31807, []int{7}
+}
+func (m *CreateBandiUserResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateBandiUserResponse.Unmarshal(m, b)
+}
+func (m *CreateBandiUserResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateBandiUserResponse.Marshal(b, m, deterministic)
+}
+func (m *CreateBandiUserResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateBandiUserResponse.Merge(m, src)
+}
+func (m *CreateBandiUserResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateBandiUserResponse.Size(m)
+}
+func (m *CreateBandiUserResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateBandiUserResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateBandiUserResponse proto.InternalMessageInfo
+
+func (m *CreateBandiUserResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Timestamp)(nil), "data.Timestamp")
 	golang_proto.RegisterType((*Timestamp)(nil), "data.Timestamp")
@@ -270,43 +428,177 @@ func init() {
 	golang_proto.RegisterType((*BandiUserDetails)(nil), "data.BandiUserDetails")
 	proto.RegisterType((*BandiCreditCard)(nil), "data.BandiCreditCard")
 	golang_proto.RegisterType((*BandiCreditCard)(nil), "data.BandiCreditCard")
+	proto.RegisterType((*GetBandiUserRequest)(nil), "data.GetBandiUserRequest")
+	golang_proto.RegisterType((*GetBandiUserRequest)(nil), "data.GetBandiUserRequest")
+	proto.RegisterType((*GetBandiUserResponse)(nil), "data.GetBandiUserResponse")
+	golang_proto.RegisterType((*GetBandiUserResponse)(nil), "data.GetBandiUserResponse")
+	proto.RegisterType((*CreateBandiUserRequest)(nil), "data.CreateBandiUserRequest")
+	golang_proto.RegisterType((*CreateBandiUserRequest)(nil), "data.CreateBandiUserRequest")
+	proto.RegisterType((*CreateBandiUserResponse)(nil), "data.CreateBandiUserResponse")
+	golang_proto.RegisterType((*CreateBandiUserResponse)(nil), "data.CreateBandiUserResponse")
 }
 
 func init() { proto.RegisterFile("credit_card.proto", fileDescriptor_dc3303e5a2b31807) }
 func init() { golang_proto.RegisterFile("credit_card.proto", fileDescriptor_dc3303e5a2b31807) }
 
 var fileDescriptor_dc3303e5a2b31807 = []byte{
-	// 506 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x52, 0xdd, 0x6e, 0xd3, 0x30,
-	0x18, 0x55, 0x7f, 0x56, 0xad, 0xee, 0xc5, 0xc0, 0x82, 0xa9, 0xaa, 0xf8, 0xb1, 0x3a, 0x01, 0x23,
-	0xda, 0x12, 0x29, 0x08, 0x81, 0xc4, 0x55, 0xb2, 0x0c, 0x29, 0x42, 0x54, 0x10, 0x95, 0x6b, 0x70,
-	0x9b, 0xaf, 0x99, 0x45, 0x6a, 0x17, 0xdb, 0x59, 0xd9, 0x03, 0xf0, 0x02, 0x79, 0x03, 0xde, 0x84,
-	0x77, 0xe1, 0x45, 0x90, 0x9d, 0x9f, 0x76, 0x08, 0xee, 0xfc, 0x9d, 0x73, 0x7c, 0x7c, 0x8e, 0x6d,
-	0x74, 0x77, 0x29, 0x21, 0x65, 0xfa, 0xf3, 0x92, 0xca, 0xd4, 0xdd, 0x48, 0xa1, 0x05, 0xee, 0xa7,
-	0x54, 0xd3, 0xc9, 0x99, 0x1d, 0x96, 0xe7, 0x19, 0xf0, 0x73, 0xb5, 0xa5, 0x59, 0x06, 0xd2, 0x13,
-	0x1b, 0xcd, 0x04, 0x57, 0x1e, 0xe5, 0x5c, 0x68, 0x6a, 0xd7, 0xd5, 0x9e, 0xc9, 0xbd, 0x4c, 0x64,
-	0xc2, 0x2e, 0x3d, 0xb3, 0xaa, 0xd1, 0xc7, 0x99, 0x10, 0x59, 0x0e, 0x9e, 0x9d, 0x16, 0xc5, 0xca,
-	0xd3, 0x6c, 0x0d, 0x4a, 0xd3, 0xf5, 0xa6, 0x12, 0x4c, 0x2f, 0xd1, 0x70, 0xde, 0x40, 0xf8, 0x35,
-	0x1a, 0xb6, 0xfc, 0xb8, 0x43, 0x3a, 0xa7, 0x23, 0x7f, 0xe2, 0x56, 0x0e, 0x6e, 0xe3, 0xe0, 0xb6,
-	0xf2, 0x64, 0x27, 0x9e, 0x7e, 0x41, 0xc3, 0x90, 0xf2, 0x94, 0x7d, 0x52, 0x20, 0xf1, 0x04, 0x1d,
-	0x16, 0x0a, 0x24, 0xa7, 0x6b, 0xb0, 0x2e, 0xc3, 0xa4, 0x9d, 0xf1, 0x2b, 0x34, 0xba, 0xb0, 0x7d,
-	0x2f, 0xa8, 0x4c, 0xd5, 0xb8, 0x4b, 0x7a, 0xa7, 0x23, 0xff, 0xbe, 0x6b, 0x0a, 0xbb, 0xd6, 0x61,
-	0xc7, 0x26, 0xfb, 0xca, 0xe9, 0xcf, 0x0e, 0xba, 0xd3, 0x1e, 0x11, 0x81, 0xa6, 0x2c, 0x57, 0xf8,
-	0x01, 0x1a, 0xae, 0x98, 0x54, 0x7a, 0xef, 0xa8, 0x1d, 0x60, 0x72, 0xe4, 0xb4, 0x26, 0xbb, 0x55,
-	0x8e, 0x66, 0xc6, 0x27, 0xa8, 0x6f, 0x32, 0x8d, 0x7b, 0xb6, 0xe5, 0xd1, 0x5e, 0x00, 0xe3, 0x9f,
-	0x58, 0x12, 0xbb, 0x08, 0xaf, 0x84, 0x04, 0x96, 0xf1, 0x77, 0x70, 0x63, 0xf0, 0x99, 0xb1, 0xea,
-	0x5b, 0xab, 0x7f, 0x30, 0xd3, 0x1f, 0x3d, 0x74, 0xf4, 0x57, 0x09, 0xfc, 0x06, 0x0d, 0x78, 0xb1,
-	0x5e, 0x80, 0xac, 0xf2, 0x85, 0x27, 0x65, 0x40, 0x9c, 0xc1, 0xcc, 0x42, 0xfe, 0xf1, 0xfc, 0x0a,
-	0x48, 0x25, 0x26, 0x46, 0x4d, 0x2a, 0x3c, 0xa9, 0xb7, 0x60, 0x1f, 0xf5, 0x96, 0xd7, 0xd7, 0x36,
-	0xfc, 0x41, 0x48, 0xca, 0xe0, 0xa1, 0x63, 0x66, 0xff, 0xf8, 0x03, 0x55, 0x6a, 0x2b, 0x64, 0x4a,
-	0x56, 0x42, 0x12, 0x7d, 0xc5, 0x14, 0xb1, 0xa9, 0x0d, 0x89, 0x67, 0x68, 0x00, 0xdf, 0x37, 0x4c,
-	0xde, 0xdc, 0xee, 0xd6, 0x3e, 0x5b, 0xf8, 0xa4, 0x0c, 0xa6, 0xce, 0x61, 0x63, 0xf1, 0x5f, 0xb3,
-	0xda, 0x05, 0x7f, 0x44, 0x87, 0x2c, 0xe3, 0x42, 0xc2, 0xfb, 0xcb, 0xaa, 0x7a, 0xf8, 0xb2, 0x0c,
-	0x7c, 0xa7, 0x05, 0xfd, 0xa7, 0x73, 0x50, 0x9a, 0xc4, 0x5c, 0x9b, 0x27, 0xce, 0xc9, 0x5b, 0x06,
-	0x79, 0x7a, 0x46, 0x22, 0xc1, 0x9f, 0x69, 0xa2, 0xb4, 0x90, 0x40, 0x18, 0x27, 0x51, 0x98, 0xb4,
-	0x3b, 0x9a, 0x0f, 0x62, 0x6f, 0xf3, 0x60, 0xf7, 0x41, 0xcc, 0x8c, 0x43, 0xd4, 0x8d, 0xa3, 0xf1,
-	0xc0, 0x1e, 0xe4, 0x97, 0x81, 0xe7, 0x74, 0xe3, 0xc8, 0x7f, 0x1e, 0x90, 0x82, 0xb3, 0x6f, 0x05,
-	0x90, 0x38, 0xf2, 0x12, 0xb1, 0x25, 0x73, 0xf1, 0x15, 0x78, 0x1d, 0xf8, 0xd6, 0x0d, 0x26, 0xdd,
-	0x38, 0x0a, 0xfb, 0xbf, 0x7e, 0x3f, 0xea, 0x2c, 0x06, 0xf6, 0xcb, 0xbe, 0xf8, 0x13, 0x00, 0x00,
-	0xff, 0xff, 0x79, 0x2a, 0x6c, 0x75, 0x61, 0x03, 0x00, 0x00,
+	// 664 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x54, 0xdd, 0x6e, 0x13, 0x3b,
+	0x10, 0x56, 0x7e, 0x1a, 0x35, 0x6e, 0x75, 0x7a, 0x8e, 0x4f, 0x9b, 0xe6, 0x44, 0xe9, 0xc1, 0xda,
+	0x0a, 0x68, 0xa3, 0x36, 0x2b, 0x2d, 0x42, 0x20, 0x2a, 0x2e, 0xb2, 0x4d, 0x41, 0x11, 0xa2, 0x82,
+	0x25, 0x5c, 0x83, 0x93, 0x9d, 0x6c, 0x0d, 0x89, 0x9d, 0xda, 0x4e, 0x4b, 0x85, 0xb8, 0x41, 0xe2,
+	0x05, 0xc2, 0x13, 0xf0, 0x26, 0xbc, 0x03, 0x6f, 0x00, 0x3c, 0x08, 0xb2, 0x77, 0xb3, 0x49, 0xda,
+	0x14, 0x71, 0xe7, 0x99, 0x6f, 0xe6, 0xfb, 0xbe, 0x99, 0x1d, 0x2d, 0xfa, 0xa7, 0x2b, 0x21, 0x64,
+	0xfa, 0x55, 0x97, 0xca, 0xb0, 0x3e, 0x94, 0x42, 0x0b, 0x9c, 0x0f, 0xa9, 0xa6, 0x95, 0x3d, 0x1b,
+	0x74, 0xf7, 0x23, 0xe0, 0xfb, 0xea, 0x9c, 0x46, 0x11, 0x48, 0x57, 0x0c, 0x35, 0x13, 0x5c, 0xb9,
+	0x94, 0x73, 0xa1, 0xa9, 0x7d, 0xc7, 0x3d, 0x95, 0x6a, 0x24, 0x44, 0xd4, 0x07, 0x97, 0x0e, 0xd9,
+	0x02, 0x74, 0x3d, 0x12, 0x91, 0xb0, 0x4f, 0xd7, 0xbc, 0x92, 0xec, 0x8d, 0xa4, 0xc7, 0x46, 0x9d,
+	0x51, 0xcf, 0xd5, 0x6c, 0x00, 0x4a, 0xd3, 0xc1, 0x30, 0x2e, 0x70, 0x8e, 0x50, 0xb1, 0x3d, 0x49,
+	0xe1, 0xfb, 0xa8, 0x98, 0xe2, 0xe5, 0x0c, 0xc9, 0xec, 0xac, 0x78, 0x95, 0x7a, 0xcc, 0x50, 0x9f,
+	0x30, 0xd4, 0xd3, 0xf2, 0x60, 0x5a, 0xec, 0xbc, 0x46, 0x45, 0x9f, 0xf2, 0x90, 0xbd, 0x54, 0x20,
+	0x71, 0x05, 0x2d, 0x8f, 0x14, 0x48, 0x4e, 0x07, 0x60, 0x59, 0x8a, 0x41, 0x1a, 0xe3, 0x7b, 0x68,
+	0xe5, 0xd0, 0x6e, 0xe3, 0x90, 0xca, 0x50, 0x95, 0xb3, 0x24, 0xb7, 0xb3, 0xe2, 0x6d, 0xd4, 0xcd,
+	0x3a, 0xea, 0x96, 0x61, 0x8a, 0x06, 0xb3, 0x95, 0xce, 0x97, 0x0c, 0xfa, 0x3b, 0x95, 0x68, 0x82,
+	0xa6, 0xac, 0xaf, 0x70, 0x15, 0x15, 0x7b, 0x4c, 0x2a, 0x3d, 0x23, 0x35, 0x4d, 0x18, 0x1f, 0x7d,
+	0x9a, 0x80, 0xd9, 0xd8, 0xc7, 0x24, 0xc6, 0xdb, 0x28, 0x6f, 0x3c, 0x95, 0x73, 0x76, 0xca, 0xb5,
+	0x19, 0x03, 0x86, 0x3f, 0xb0, 0x20, 0xae, 0x23, 0xdc, 0x13, 0x12, 0x58, 0xc4, 0x9f, 0xc0, 0x85,
+	0xc9, 0x1f, 0x1b, 0xaa, 0xbc, 0xa5, 0x5a, 0x80, 0x38, 0x9f, 0x72, 0x68, 0xed, 0xd2, 0x10, 0xf8,
+	0x00, 0x15, 0xf8, 0x68, 0xd0, 0x01, 0x19, 0xfb, 0xf3, 0xb7, 0xc7, 0x0d, 0x52, 0x2b, 0x1c, 0xdb,
+	0x94, 0x57, 0x6a, 0x9f, 0x00, 0x89, 0x8b, 0x89, 0xa9, 0x26, 0x71, 0x3e, 0x48, 0x5a, 0xb0, 0x87,
+	0x72, 0xdd, 0xb3, 0x33, 0x6b, 0x7e, 0xc9, 0x27, 0xe3, 0xc6, 0x56, 0xcd, 0xc4, 0x5e, 0xe9, 0x19,
+	0x55, 0xea, 0x5c, 0xc8, 0x90, 0xf4, 0x84, 0x24, 0xfa, 0x84, 0x29, 0x62, 0x5d, 0x1b, 0x10, 0x1f,
+	0xa3, 0x02, 0xbc, 0x1b, 0x32, 0x79, 0x31, 0x3f, 0x5b, 0xfa, 0xd9, 0xfc, 0x9b, 0xe3, 0x86, 0x53,
+	0x5b, 0x9e, 0x50, 0x5c, 0x4b, 0x96, 0xb0, 0xe0, 0xe7, 0x68, 0x99, 0x45, 0x5c, 0x48, 0x78, 0x7a,
+	0x14, 0x8f, 0xee, 0xdf, 0x1d, 0x37, 0xbc, 0x5a, 0x9a, 0xf4, 0x6e, 0xb5, 0x41, 0x69, 0xd2, 0xe2,
+	0xda, 0x7c, 0xe2, 0x3e, 0x79, 0xc4, 0xa0, 0x1f, 0xee, 0x91, 0xa6, 0xe0, 0xb7, 0x35, 0x51, 0x5a,
+	0x48, 0x20, 0x8c, 0x93, 0xa6, 0x1f, 0xa4, 0x1d, 0x93, 0x03, 0xb1, 0xdb, 0x5c, 0x9a, 0x1e, 0x88,
+	0x89, 0xb1, 0x8f, 0xb2, 0xad, 0x66, 0xb9, 0x60, 0x85, 0xbc, 0x71, 0xc3, 0xad, 0x65, 0x5b, 0x4d,
+	0x6f, 0xb7, 0x41, 0x46, 0x9c, 0x9d, 0x8e, 0x80, 0xb4, 0x9a, 0x6e, 0x20, 0xce, 0x49, 0x5b, 0xbc,
+	0x05, 0x9e, 0x18, 0x9e, 0xdb, 0x60, 0x90, 0x6d, 0x35, 0x9d, 0x5d, 0xf4, 0xef, 0x63, 0xd0, 0xd3,
+	0xaf, 0x09, 0xa7, 0x23, 0x50, 0x1a, 0x63, 0x94, 0x9f, 0x39, 0x14, 0xfb, 0x76, 0x0e, 0xd0, 0xfa,
+	0x7c, 0xa9, 0x1a, 0x0a, 0xae, 0xa6, 0xf7, 0x91, 0xf9, 0xcd, 0x7d, 0x38, 0x0f, 0x51, 0xe9, 0x50,
+	0x02, 0xd5, 0x70, 0x45, 0xea, 0x8f, 0xda, 0xf7, 0xd1, 0xe6, 0x95, 0xf6, 0x44, 0x7e, 0x81, 0x55,
+	0xef, 0x7b, 0x06, 0xad, 0xda, 0xca, 0x17, 0x20, 0xcf, 0x58, 0x17, 0x70, 0x88, 0x56, 0x67, 0xbd,
+	0xe3, 0xff, 0x62, 0x99, 0x05, 0xa3, 0x57, 0x2a, 0x8b, 0xa0, 0x58, 0xcb, 0xd9, 0xfa, 0xf8, 0xed,
+	0xe7, 0xe7, 0xec, 0x26, 0xde, 0x70, 0x45, 0xe7, 0x0d, 0x74, 0xb5, 0x72, 0x8d, 0x3b, 0xe5, 0xbe,
+	0x37, 0xaa, 0x1f, 0x70, 0x1f, 0xad, 0x5d, 0x72, 0x89, 0xab, 0x31, 0xdb, 0xe2, 0xd9, 0x2b, 0x5b,
+	0xd7, 0xa0, 0x89, 0x5c, 0xd5, 0xca, 0x95, 0x9c, 0xbf, 0xe6, 0xe5, 0x1e, 0xd8, 0x9d, 0xf8, 0xf9,
+	0xaf, 0x3f, 0xfe, 0xcf, 0x74, 0x0a, 0xf6, 0x6f, 0x73, 0xe7, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0x15, 0xbe, 0x84, 0x8b, 0x3a, 0x05, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// BandiServiceClient is the client API for BandiService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type BandiServiceClient interface {
+	GetBandiUser(ctx context.Context, in *GetBandiUserRequest, opts ...grpc.CallOption) (*GetBandiUserResponse, error)
+	CreateBandiUser(ctx context.Context, in *CreateBandiUserRequest, opts ...grpc.CallOption) (*CreateBandiUserResponse, error)
+}
+
+type bandiServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewBandiServiceClient(cc *grpc.ClientConn) BandiServiceClient {
+	return &bandiServiceClient{cc}
+}
+
+func (c *bandiServiceClient) GetBandiUser(ctx context.Context, in *GetBandiUserRequest, opts ...grpc.CallOption) (*GetBandiUserResponse, error) {
+	out := new(GetBandiUserResponse)
+	err := c.cc.Invoke(ctx, "/data.BandiService/GetBandiUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bandiServiceClient) CreateBandiUser(ctx context.Context, in *CreateBandiUserRequest, opts ...grpc.CallOption) (*CreateBandiUserResponse, error) {
+	out := new(CreateBandiUserResponse)
+	err := c.cc.Invoke(ctx, "/data.BandiService/CreateBandiUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// BandiServiceServer is the server API for BandiService service.
+type BandiServiceServer interface {
+	GetBandiUser(context.Context, *GetBandiUserRequest) (*GetBandiUserResponse, error)
+	CreateBandiUser(context.Context, *CreateBandiUserRequest) (*CreateBandiUserResponse, error)
+}
+
+// UnimplementedBandiServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedBandiServiceServer struct {
+}
+
+func (*UnimplementedBandiServiceServer) GetBandiUser(ctx context.Context, req *GetBandiUserRequest) (*GetBandiUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBandiUser not implemented")
+}
+func (*UnimplementedBandiServiceServer) CreateBandiUser(ctx context.Context, req *CreateBandiUserRequest) (*CreateBandiUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBandiUser not implemented")
+}
+
+func RegisterBandiServiceServer(s *grpc.Server, srv BandiServiceServer) {
+	s.RegisterService(&_BandiService_serviceDesc, srv)
+}
+
+func _BandiService_GetBandiUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBandiUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BandiServiceServer).GetBandiUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/data.BandiService/GetBandiUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BandiServiceServer).GetBandiUser(ctx, req.(*GetBandiUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BandiService_CreateBandiUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBandiUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BandiServiceServer).CreateBandiUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/data.BandiService/CreateBandiUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BandiServiceServer).CreateBandiUser(ctx, req.(*CreateBandiUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _BandiService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "data.BandiService",
+	HandlerType: (*BandiServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetBandiUser",
+			Handler:    _BandiService_GetBandiUser_Handler,
+		},
+		{
+			MethodName: "CreateBandiUser",
+			Handler:    _BandiService_CreateBandiUser_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "credit_card.proto",
 }

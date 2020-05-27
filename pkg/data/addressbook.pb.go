@@ -59,9 +59,9 @@ type Person struct {
 	Email                string                `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
 	Phones               []*Person_PhoneNumber `protobuf:"bytes,4,rep,name=phones,proto3" json:"phones,omitempty"`
 	LastUpdated          *types.Timestamp      `protobuf:"bytes,5,opt,name=last_updated,json=lastUpdated,proto3" json:"last_updated,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
-	XXX_unrecognized     []byte                `json:"-"`
-	XXX_sizecache        int32                 `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte                `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32                 `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *Person) Reset()         { *m = Person{} }
@@ -126,9 +126,9 @@ func (m *Person) GetLastUpdated() *types.Timestamp {
 type Person_PhoneNumber struct {
 	Number               string           `protobuf:"bytes,1,opt,name=number,proto3" json:"number,omitempty"`
 	Type                 Person_PhoneType `protobuf:"varint,2,opt,name=type,proto3,enum=data.Person_PhoneType" json:"type,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
-	XXX_unrecognized     []byte           `json:"-"`
-	XXX_sizecache        int32            `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte           `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32            `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *Person_PhoneNumber) Reset()         { *m = Person_PhoneNumber{} }
@@ -172,9 +172,9 @@ func (m *Person_PhoneNumber) GetType() Person_PhoneType {
 // Our address book file is just one of these.
 type AddressBook struct {
 	People               []*Person `protobuf:"bytes,1,rep,name=people,proto3" json:"people,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
-	XXX_unrecognized     []byte    `json:"-"`
-	XXX_sizecache        int32     `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte    `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32     `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *AddressBook) Reset()         { *m = AddressBook{} }
@@ -214,9 +214,9 @@ type Address struct {
 	State                string   `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
 	Country              string   `protobuf:"bytes,4,opt,name=country,proto3" json:"country,omitempty"`
 	Zip                  int32    `protobuf:"varint,5,opt,name=zip,proto3" json:"zip,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *Address) Reset()         { *m = Address{} }

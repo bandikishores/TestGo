@@ -25,9 +25,9 @@ type Error struct {
 	Code                 int32    `protobuf:"varint,2,opt,name=code,proto3" json:"code,omitempty"`
 	Type                 string   `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
 	DetailedMessage      string   `protobuf:"bytes,4,opt,name=detailed_message,json=detailedMessage,proto3" json:"detailed_message,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *Error) Reset()         { *m = Error{} }

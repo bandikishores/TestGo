@@ -19,6 +19,82 @@
     "application/json"
   ],
   "paths": {
+    "/objects/users": {
+      "post": {
+        "operationId": "BandiService_CreateBandiUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/dataCreateBandiUserResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/dataBandiUser"
+            }
+          }
+        ],
+        "tags": [
+          "BandiService"
+        ]
+      }
+    },
+    "/objects/users/{name}": {
+      "get": {
+        "operationId": "BandiService_GetBandiUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/dataGetBandiUserResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BandiService"
+        ]
+      }
+    },
     "/organizations/{orgName}/streamusers/{name}": {
       "get": {
         "operationId": "UserService_StreamUsers",
@@ -510,6 +586,65 @@
         }
       }
     },
+    "dataBandiCreditCard": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "string",
+          "description": "The Credit Card Number",
+          "title": "Number"
+        },
+        "cvv": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Password for this User",
+          "title": "cvv"
+        },
+        "expiry": {
+          "$ref": "#/definitions/dataTimestamp",
+          "description": "Password for this User",
+          "title": "Password"
+        },
+        "ignoreME": {
+          "type": "string",
+          "description": "Test Internal Field, Don't store in DB",
+          "title": "ignoreME"
+        },
+        "userName": {
+          "type": "string",
+          "title": "@inject_tag: sql:\"type:string REFERENCES bandi_users(username)\""
+        },
+        "ID": {
+          "type": "string",
+          "description": "A unique ID/Row Token for the Credit Card",
+          "title": "ID"
+        }
+      }
+    },
+    "dataBandiUser": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "@inject_tag: gorm:\"primary_key\""
+        },
+        "CreditCards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/dataBandiCreditCard"
+          },
+          "title": "@inject_tag: gorm:\"ForeignKey:UserName\""
+        }
+      }
+    },
+    "dataCreateBandiUserResponse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
     "dataCreateUserResponse": {
       "type": "object",
       "properties": {
@@ -532,6 +667,14 @@
         }
       }
     },
+    "dataGetBandiUserResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/dataBandiUser"
+        }
+      }
+    },
     "dataGetUserResponse": {
       "type": "object",
       "properties": {
@@ -540,6 +683,15 @@
         },
         "status": {
           "$ref": "#/definitions/rpcStatus"
+        }
+      }
+    },
+    "dataTimestamp": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },

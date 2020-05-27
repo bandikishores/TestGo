@@ -37,9 +37,9 @@ type User struct {
 	ContactAddress       *Address `protobuf:"bytes,3,opt,name=contactAddress,proto3" json:"contactAddress,omitempty"`
 	Email                string   `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
 	ID                   string   `protobuf:"bytes,5,opt,name=ID,json=_key,proto3" json:"_key"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *User) Reset()         { *m = User{} }
@@ -104,9 +104,9 @@ func (m *User) GetID() string {
 type CreateUserRequest struct {
 	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	OrgName              string   `protobuf:"bytes,2,opt,name=orgName,proto3" json:"orgName,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *CreateUserRequest) Reset()         { *m = CreateUserRequest{} }
@@ -150,9 +150,9 @@ func (m *CreateUserRequest) GetOrgName() string {
 type CreateUserResponse struct {
 	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Status               *status.Status `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
-	XXX_unrecognized     []byte         `json:"-"`
-	XXX_sizecache        int32          `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte         `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32          `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *CreateUserResponse) Reset()         { *m = CreateUserResponse{} }
@@ -197,9 +197,9 @@ type UpdateUserRequest struct {
 	User                 *User    `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	OrgName              string   `protobuf:"bytes,2,opt,name=orgName,proto3" json:"orgName,omitempty"`
 	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *UpdateUserRequest) Reset()         { *m = UpdateUserRequest{} }
@@ -250,9 +250,9 @@ func (m *UpdateUserRequest) GetName() string {
 type UpdateUserResponse struct {
 	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Status               *status.Status `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
-	XXX_unrecognized     []byte         `json:"-"`
-	XXX_sizecache        int32          `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte         `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32          `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *UpdateUserResponse) Reset()         { *m = UpdateUserResponse{} }
@@ -296,9 +296,9 @@ func (m *UpdateUserResponse) GetStatus() *status.Status {
 type DeleteUserRequest struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	OrgName              string   `protobuf:"bytes,2,opt,name=orgName,proto3" json:"orgName,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *DeleteUserRequest) Reset()         { *m = DeleteUserRequest{} }
@@ -342,9 +342,9 @@ func (m *DeleteUserRequest) GetOrgName() string {
 type DeleteUserResponse struct {
 	Name                 string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Status               *status.Status `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
-	XXX_unrecognized     []byte         `json:"-"`
-	XXX_sizecache        int32          `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte         `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32          `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *DeleteUserResponse) Reset()         { *m = DeleteUserResponse{} }
@@ -389,9 +389,9 @@ type GetUserRequest struct {
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	OrgName              string   `protobuf:"bytes,2,opt,name=orgName,proto3" json:"orgName,omitempty"`
 	QueryParam1          string   `protobuf:"bytes,3,opt,name=queryParam1,proto3" json:"queryParam1,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte   `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32    `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *GetUserRequest) Reset()         { *m = GetUserRequest{} }
@@ -442,9 +442,9 @@ func (m *GetUserRequest) GetQueryParam1() string {
 type GetUserResponse struct {
 	User                 *User          `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	Status               *status.Status `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
-	XXX_unrecognized     []byte         `json:"-"`
-	XXX_sizecache        int32          `json:"-"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_unrecognized     []byte         `json:"-" yaml:"-" xml:"-" gorm:"-"`
+	XXX_sizecache        int32          `json:"-" yaml:"-" xml:"-" gorm:"-"`
 }
 
 func (m *GetUserResponse) Reset()         { *m = GetUserResponse{} }

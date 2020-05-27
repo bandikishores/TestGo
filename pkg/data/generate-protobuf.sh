@@ -23,7 +23,7 @@ $protoc --gogo_out=plugins=grpc,Mgoogle/protobuf/timestamp.proto=github.com/gogo
         ./*.proto
 
 echo "Injecting Custom Tags in Fields"
-ls $ROOT/pkg/data/*.pb.go | while read file; do protoc-go-inject-tag -input=$file; done
+ls $ROOT/pkg/data/*.pb.go | while read file; do protoc-go-inject-tag -XXX_skip=yaml,xml,gorm -input=$file; done
 
 
 echo "Generating swagger"

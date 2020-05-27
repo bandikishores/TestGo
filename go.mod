@@ -12,6 +12,8 @@ require (
 	github.com/googleapis/googleapis v0.0.0-20200303215514-541b1ded4aba // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway v1.14.5
+	github.com/jinzhu/gorm v1.9.12
+	github.com/lib/pq v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0

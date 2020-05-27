@@ -79,6 +79,34 @@ Sample project to test out go features
       ```
 
 
+* Testing GORM part. It currently uses secure psql, change accordingly.
+  1) To Create Record
+  
+  curl --location --request POST 'http://localhost:18081/objects/users' \
+--header 'Authorization: Bearer dsfv' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username": "bandi.kishore",
+    "CreditCards": [
+        {
+            "number": "6799e36389",
+            "cvv": 948,
+            "ID": "klshdfowe8"
+        },
+        {
+            "number": "6799e3389",
+            "cvv": 183,
+            "ID": "klsdvsdfv"
+        }
+    ]
+}'
+
+    2) To Get Records
+    
+    curl --location --request GET 'http://localhost:18081/objects/users/bandi.kishore' \
+--header 'Authorization: Bearer sdv'
+
+
 * Manual Installation and Compilation of Proto/Go
 
   1) Go Mod Created using 
