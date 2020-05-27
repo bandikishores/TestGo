@@ -22,6 +22,10 @@ $protoc --gogo_out=plugins=grpc,Mgoogle/protobuf/timestamp.proto=github.com/gogo
         --grpc-gateway_out=logtostderr=true,allow_patch_feature=false,request_context=true:$ROOT/pkg/data \
         ./*.proto
 
+echo "Injecting Custom Tags in Fields"
+ls $ROOT/pkg/data/*.pb.go | while read file; do protoc-go-inject-tag -input=$file; done
+
+
 echo "Generating swagger"
 $protoc --swagger_out=logtostderr=true:$ROOT/data/swagger \
         --swagger_out=logtostderr=true,allow_merge=true:$ROOT/data/swagger \

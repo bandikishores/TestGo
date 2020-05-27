@@ -1,0 +1,63 @@
+syntax = "proto3";
+package data;
+
+import "protoc-gen-swagger/options/annotations.proto";
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option (gogoproto.goproto_registration) = true;
+
+message Timestamp {
+    google.protobuf.Timestamp timestamp = 1;
+}
+
+message BandiUser {
+    // @inject_tag: gorm:"primary_key"
+    string username = 1;
+    // @inject_tag: gorm:"foreignkey:UserName;association_foreignkey:Username"
+    repeated BandiCreditCard CreditCards = 2;
+}
+
+// Contains Composite Primary Key and Foreign Key
+// User Details "belongs to" an User
+message BandiUserDetails {
+    // @inject_tag: gorm:"primary_key"
+    string firstname = 1;
+    // @inject_tag: gorm:"primary_key"
+    string lastname = 2;
+    // @inject_tag: gorm:"foreignkey:ForeignKeyUserName;association_foreignkey:Username"
+    BandiUser user = 3;
+    string foreignKeyUserName = 4;
+}
+
+message BandiCreditCard {
+    // @inject_tag: gorm:"unique;not null;size:16;unique_index" 
+    string number = 1 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+        title: "Number",
+        description: "The Credit Card Number"
+      }];
+    // @inject_tag: gorm:"not null" bandi:"only4digits"
+    int32 cvv = 2 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+        title: "cvv",
+        description: "Password for this User"
+    }];
+    // @inject_tag: gorm:"type:timestamp;index:expiry;not null;"
+    Timestamp expiry = 3 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+        title: "Password",
+        description: "Password for this User"
+    }];
+    // @inject_tag: gorm:"-"
+    string ignoreME = 4 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+        title: "ignoreME",
+        description: "Test Internal Field, Don't store in DB"
+    }];
+    string userName = 5;
+
+    // Kish - TODO : Find a way to use gorm.Models here.
+
+    // @inject_tag: gorm:"primary_key"
+    string ID = 6 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+        title: "ID",
+        description: "A unique ID/Row Token for the Credit Card"
+      }];
+}

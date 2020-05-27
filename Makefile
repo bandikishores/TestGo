@@ -55,13 +55,17 @@ GRPC_1.12.1 = $(BIN)/grpc-gateway@v1.14.5
 $(BIN)/grpc-gateway@v1.14.5: | $(BASE) ; $(info $(M) installing grpc-gateway@v1.14.5...)
 	$Q $(GO)  get -v github.com/grpc-ecosystem/grpc-gateway@v1.14.5
 
+PROTOC_INJECT_TAG = $(BIN)/protoc-go-inject-tag
+$(BIN)/protoc-go-inject-tag: | $(BASE) ; $(info $(M) installing protoc-go-inject-tag…)
+	$Q $(GO) get -u github.com/favadi/protoc-go-inject-tag
+
 # Dependency management
 .PHONY: download
 download:
 	$Q cd $(BASE) && $(GO) mod download; $(info $(M) retrieving dependencies…)
 
 .PHONY: install-dependencies 
-install-dependencies: $(BIN)/golint $(BIN)/protoc-gen-grpc-gateway $(BIN)/protoc-gen-swagger $(BIN)/protoc-gen-go $(PROTOC_GEN_GOGO) $(GOGO_APIS) $(grpc-gateway@v1.14.5)  ## Install dependent go tools
+install-dependencies: $(BIN)/golint $(BIN)/protoc-gen-grpc-gateway $(BIN)/protoc-gen-swagger $(BIN)/protoc-gen-go $(PROTOC_GEN_GOGO) $(GOGO_APIS) $(grpc-gateway@v1.14.5) $(PROTOC_INJECT_TAG)  ## Install dependent go tools
 
 # Tests
 $(TEST_TARGETS): NAME=$(MAKECMDGOALS:test-%=%)
