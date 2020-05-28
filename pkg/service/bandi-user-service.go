@@ -45,10 +45,17 @@ func (us *BandiUserService) CreateBandiUser(ctx context.Context, req *data.Creat
 
 	// Automatically create the "Bandi User" table based on the proto
 	// model.
-	db.AutoMigrate(&data.BandiUser{}, &data.BandiCreditCard{}, &data.BandiUserDetails{})
+	db.AutoMigrate(&data.BandiUser{}, &data.BandiCreditCard{})
+	db.Table("user_details").CreateTable(&data.BandiUserDetails{})
 
 	// Insert one row
 	db.Create(req.User)
+	userdetails := &data.BandiUserDetails{
+		Firstname:          "Kishore",
+		Lastname:           "Bandi Details",
+		ForeignKeyUserName: req.User.Username,
+	}
+	db.Table("user_details").Create(userdetails)
 	/*
 		if err := runTransaction(db,
 			func(*gorm.DB) error {
@@ -163,7 +170,8 @@ func (us *BandiUserService) GetBandiUser(ctx context.Context, req *data.GetBandi
 
 	// Automatically create the "Bandi User" table based on the proto
 	// model.
-	db.AutoMigrate(&data.BandiUser{}, &data.BandiCreditCard{}, &data.BandiUserDetails{})
+	db.AutoMigrate(&data.BandiUser{}, &data.BandiCreditCard{})
+	db.Table("user_details").CreateTable(&data.BandiUserDetails{})
 
 	var bandiUser data.BandiUser
 	db.Preload("CreditCards").Where(&data.BandiUser{Username: req.Name}).First(&bandiUser)
