@@ -12,14 +12,21 @@ import (
 	"time"
 
 	"bandi.com/TestGo/pkg/data"
+	"bandi.com/TestGo/pkg/service"
 	"bandi.com/TestGo/pkg/util"
 	"github.com/gogo/gateway"
+	golang_jsonpb "github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	// Dynamic creation of File Descriptors for Proto
+	"github.com/jhump/protoreflect/desc"
+	"github.com/jhump/protoreflect/desc/protoparse"
+	"github.com/jhump/protoreflect/dynamic"
 )
 
 const (
@@ -60,18 +67,71 @@ func RunRestServer(ctx context.Context, grpcPort, httpPort string) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	jsonpb := &gateway.JSONPb{
-		OrigName:     true,
-		EnumsAsInts:  false,
-		EmitDefaults: true,
-	}
 	jsonpbpretty := &gateway.JSONPb{
 		Indent:       "  ",
 		OrigName:     true,
 		EnumsAsInts:  false,
 		EmitDefaults: true,
 	}
-	errorJSONPb := util.NewErrorJSON(jsonpb)
+
+	p := protoparse.Parser{
+		Accessor: protoparse.FileContentsFromMap(map[string]string{
+			"foo/bar.proto": `
+					syntax = "proto3";
+					package foo;
+					message Bar {
+						string name = 1;
+						int32 id = 2;
+					}
+					`,
+			// imports above file as just "bar.proto", so we need an
+			// import resolver to properly load and link
+			"fu/baz.proto": `
+					syntax = "proto3";
+					package fu;
+					import "foo/bar.proto";
+					message Baz {
+						repeated foo.Bar foobar = 1;
+					}
+					`,
+		}),
+		ImportPaths: []string{"foo"},
+	}
+	fds, err := p.ParseFilesButDoNotLink("foo/bar.proto", "fu/baz.proto")
+	if err != nil {
+		return err
+	}
+	// sanity check: make sure linking fails without an import resolver
+	linkedFiles, err := desc.CreateFileDescriptors(fds)
+	if err != nil {
+		return err
+	}
+	// quick check of the resulting files
+	fd := linkedFiles["foo/bar.proto"]
+	resolver := dynamic.AnyResolver(nil, fd)
+	_ = golang_jsonpb.Marshaler{AnyResolver: resolver}
+	_ = util.NewErrorJSON(&runtime.JSONPb{
+		OrigName:     true,
+		EnumsAsInts:  false,
+		EmitDefaults: true,
+		AnyResolver:  resolver,
+	})
+	errorJSONPb := util.NewErrorJSON(&gateway.JSONPb{
+		OrigName:     true,
+		EnumsAsInts:  false,
+		EmitDefaults: true,
+		AnyResolver:  service.AnyResolver(nil, fd),
+	})
+
+	/*
+		jsonpb := &gateway.JSONPb{
+			OrigName:     true,
+			EnumsAsInts:  false,
+			EmitDefaults: true,
+		}
+		errorJSONPb := util.NewErrorJSON(jsonpb)
+	*/
+
 	errorJSONPbPretty := util.NewErrorJSON(jsonpbpretty)
 	mux := runtime.NewServeMux(
 		runtime.WithIncomingHeaderMatcher(headerMatcher),

@@ -91,7 +91,7 @@ message CreateBandiUserResponse {
 
 message CreateAnyRequest {
     string notebook = 1;
-    google.protobuf.Any object = 2;
+    google.protobuf.Any object = 2;//[(gogoproto.customtype) = "github.com/google/protobuf/Any"];
 }
 
 message CreateAnyResponse {

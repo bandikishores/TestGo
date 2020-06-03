@@ -5,17 +5,35 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"reflect"
+	"strings"
 	"time"
 
 	"bandi.com/TestGo/pkg/data"
 	"golang.org/x/net/context"
 
+	// Dynamic Proto Registration
+
+	"github.com/gogo/gateway"
+	"github.com/gogo/protobuf/jsonpb"
+	proto "github.com/gogo/protobuf/proto"
+	golang_jsonpb "github.com/golang/protobuf/jsonpb"
+
+	//golang_proto "github.com/golang/protobuf/proto"
+
 	// Import GORM-related packages.
 	"github.com/jinzhu/gorm"
+
 	// _ "github.com/jinzhu/gorm/dialects/postgres"
 
 	// Necessary in order to check for transaction retry error codes.
+	"github.com/gogo/protobuf/types"
 	"github.com/lib/pq"
+
+	// Dynamic creation of File Descriptors for Proto
+	"github.com/jhump/protoreflect/desc"
+	"github.com/jhump/protoreflect/desc/protoparse"
+	"github.com/jhump/protoreflect/dynamic"
 )
 
 // BandiUserService helps manage users
@@ -180,5 +198,236 @@ func (us *BandiUserService) GetBandiUser(ctx context.Context, req *data.GetBandi
 
 // CreateAny ...
 func (us *BandiUserService) CreateAny(ctx context.Context, req *data.CreateAnyRequest) (*data.CreateAnyResponse, error) {
-	return &data.CreateAnyResponse{}, nil
+	/*
+		Proto we're trying to insert
+
+		message Personal {
+			Name name = 1;
+			string phone_number = 2;
+			int32 age = 3;
+		}
+
+		message Name {
+			string first_name = 1;
+			string last_name = 2;
+			string middle_name = 3;
+		}
+
+	*/
+
+	/*
+		if se, ok := err.(interface{ GRPCStatus() *status.Status }); ok {
+			return FromGRPCStatus(se.GRPCStatus()), true
+		}
+	*/
+
+	p := protoparse.Parser{
+		Accessor: protoparse.FileContentsFromMap(map[string]string{
+			"foo/bar.proto": `
+				syntax = "proto3";
+				package foo;
+				message Bar {
+					string name = 1;
+					int32 id = 2;
+				}
+				`,
+			// imports above file as just "bar.proto", so we need an
+			// import resolver to properly load and link
+			"fu/baz.proto": `
+				syntax = "proto3";
+				package fu;
+				import "foo/bar.proto";
+				message Baz {
+					repeated foo.Bar foobar = 1;
+				}
+				`,
+		}),
+		ImportPaths: []string{"foo"},
+	}
+	fds, err := p.ParseFilesButDoNotLink("foo/bar.proto", "fu/baz.proto")
+	if err != nil {
+		return nil, err
+	}
+	// sanity check: make sure linking fails without an import resolver
+	linkedFiles, err := desc.CreateFileDescriptors(fds)
+	if err != nil {
+		return nil, err
+	}
+	/*
+		// now try again with resolver
+		var r desc.ImportResolver
+		r.RegisterImportPath("foo/bar.proto", "bar.proto")
+		linkedFiles, err := r.CreateFileDescriptors(fds)
+		if err != nil {
+			return nil, err
+		}
+	*/
+
+	// quick check of the resulting files
+	fd := linkedFiles["foo/bar.proto"]
+	md := fd.FindMessage("foo.Bar")
+	dm := dynamic.NewMessage(md)
+
+	//proto.RegisterType((*dynamic.Message)(nil), "foo.Bar")
+	//golang_proto.RegisterType((*dynamic.Message)(nil), "foo.Bar")
+
+	dm = dynamic.NewMessage(md)
+	dm.SetFieldByNumber(1, "kishore")
+	dm.SetFieldByNumber(2, int32(123))
+
+	a1, err := types.MarshalAny(dm)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("Create Any Marshalled Data is : %v\n", a1)
+
+	/*
+		marshaler := util.NewErrorJSON(&gateway.JSONPb{
+			OrigName:     true,
+			EnumsAsInts:  false,
+			EmitDefaults: true,
+		})
+
+			buf, err := marshaler.Marshal(dm)
+			if err != nil {
+				return nil, err
+			}
+			fmt.Printf("Buffer Created is : %v\n", buf)
+
+				resp := &data.CreateAnyResponse{Object: &types.Any{
+					TypeUrl: "bandi.com/dynamic/" + proto.MessageName(dm),
+					Value:   buf,
+				}}
+	*/
+
+	resp := &data.CreateAnyResponse{Object: a1}
+	fmt.Printf("Final Resp is : %v\n", resp)
+
+	resolver := dynamic.AnyResolver(nil, fd)
+	golangMarshaller := golang_jsonpb.Marshaler{AnyResolver: resolver}
+	js1, err := golangMarshaller.MarshalToString(resp)
+	if err != nil {
+		fmt.Printf("Error is is : %v\n", err)
+		return nil, err
+	}
+	fmt.Printf("After Marshal Resp1 is : %v\n", js1)
+
+	jsm := &gateway.JSONPb{
+		OrigName:     true,
+		EnumsAsInts:  false,
+		EmitDefaults: true,
+		AnyResolver:  AnyResolver(nil, fd),
+	}
+	js, err := jsm.Marshal(resp)
+	if err != nil {
+		fmt.Printf("Error is is : %v\n", err)
+		return nil, err
+	}
+	fmt.Printf("After Marshal Resp is : %s\n", string(js))
+
+	/*
+		resp1 := a1
+		dynamicResolver := dynamic.AnyResolver(nil, fd)
+		anotherMarshaller := golang_jsonpb.Marshaler{AnyResolver: dynamicResolver}
+		js, err := anotherMarshaller.MarshalToString(resp1)
+		if err != nil {
+			return nil, fmt.Errorf("could not serialize to string another marshaller")
+		}
+		fmt.Printf("string de-serializer is : %v", js)
+
+		_, err = marshaler.Marshal(resp1)
+		if err != nil {
+			return nil, fmt.Errorf("could not serialize anything")
+		}
+		fmt.Printf("FInal Resp is : %v", resp1)
+	*/
+
+	return resp, nil
+}
+
+// AnyResolver returns a jsonpb.AnyResolver that uses the given file descriptors
+// to resolve message names. It uses the given factory, which may be nil, to
+// instantiate messages. The messages that it returns when resolving a type name
+// may often be dynamic messages.
+func AnyResolver(mf *dynamic.MessageFactory, files ...*desc.FileDescriptor) jsonpb.AnyResolver {
+	return &anyResolver{mf: mf, files: files}
+}
+
+type anyResolver struct {
+	mf      *dynamic.MessageFactory
+	files   []*desc.FileDescriptor
+	ignored map[*desc.FileDescriptor]struct{}
+	other   jsonpb.AnyResolver
+}
+
+// Resolve ...
+func (r *anyResolver) Resolve(typeURL string) (proto.Message, error) {
+	mname := typeURL
+	if slash := strings.LastIndex(mname, "/"); slash >= 0 {
+		mname = mname[slash+1:]
+	}
+
+	// see if the user-specified resolver is able to do the job
+	if r.other != nil {
+		msg, err := r.other.Resolve(typeURL)
+		if err == nil {
+			return msg, nil
+		}
+	}
+	// try to find the message in our known set of files
+	checked := map[*desc.FileDescriptor]struct{}{}
+	for _, f := range r.files {
+		md := r.findMessage(f, mname, checked)
+		if md != nil {
+			return r.mf.NewMessage(md), nil
+		}
+	}
+	// failing that, see if the message factory knows about this type
+	var ktr *dynamic.KnownTypeRegistry
+	if r.mf != nil {
+		v := reflect.ValueOf(r.mf)
+		y := v.FieldByName("ktr")
+		ktr = y.Interface().(*dynamic.KnownTypeRegistry)
+	} else {
+		ktr = (*dynamic.KnownTypeRegistry)(nil)
+	}
+	m := ktr.CreateIfKnown(mname)
+	if m != nil {
+		return m, nil
+	}
+
+	// no other resolver to fallback to? mimic default behavior
+	mt := proto.MessageType(mname)
+	if mt == nil {
+		return nil, fmt.Errorf("unknown message type %q", mname)
+	}
+	return reflect.New(mt.Elem()).Interface().(proto.Message), nil
+}
+
+func (r *anyResolver) findMessage(fd *desc.FileDescriptor, msgName string, checked map[*desc.FileDescriptor]struct{}) *desc.MessageDescriptor {
+	// if this is an ignored descriptor, skip
+	if _, ok := r.ignored[fd]; ok {
+		return nil
+	}
+
+	// bail if we've already checked this file
+	if _, ok := checked[fd]; ok {
+		return nil
+	}
+	checked[fd] = struct{}{}
+
+	// see if this file has the message
+	md := fd.FindMessage(msgName)
+	if md != nil {
+		return md
+	}
+
+	// if not, recursively search the file's imports
+	for _, dep := range fd.GetDependencies() {
+		md = r.findMessage(dep, msgName, checked)
+		if md != nil {
+			return md
+		}
+	}
+	return nil
 }
