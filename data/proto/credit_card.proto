@@ -51,7 +51,8 @@ message BandiCreditCard {
     string ignoreME = 4 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
         title: "ignoreME",
         description: "Test Internal Field, Don't store in DB"
-    }];
+    },
+    (gogoproto.jsontag) = "ignoreMEJson", (gogoproto.moretags) = "xml:\"ignoreMEXML\""];
     // @inject_tag: sql:"type:string REFERENCES bandi_users(username)"
     string userName = 5;
 
