@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	pb "bandi.com/main/pkg/data"
+	pb "bandi.com/TestGo/pkg/data"
 )
 
 func BenchmarkTest(t *testing.B) {

@@ -18,7 +18,7 @@ protoc="protoc
 cd $ROOT/data/proto
 
 echo "Generating gRPC Server, gateway"
-$protoc --gogo_out=plugins=grpc,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types:$ROOT/pkg/data \
+$protoc --gogo_out=plugins=grpc,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types:$ROOT/pkg/data \
         --grpc-gateway_out=logtostderr=true,allow_patch_feature=false,request_context=true:$ROOT/pkg/data \
         ./*.proto
 

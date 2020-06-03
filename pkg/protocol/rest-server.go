@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"bandi.com/main/pkg/data"
-	"bandi.com/main/pkg/util"
+	"bandi.com/TestGo/pkg/data"
+	"bandi.com/TestGo/pkg/util"
 	"github.com/gogo/gateway"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"

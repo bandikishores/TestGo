@@ -5,6 +5,7 @@ import "protoc-gen-swagger/options/annotations.proto";
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
 
 option (gogoproto.goproto_registration) = true;
 
@@ -48,11 +49,13 @@ message BandiCreditCard {
         description: "Password for this User"
     }];
     // @inject_tag: gorm:"-"
-    string ignoreME = 4 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    BandiEmbed bandiEmbed = 4 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
         title: "ignoreME",
         description: "Test Internal Field, Don't store in DB"
     },
-    (gogoproto.jsontag) = "ignoreMEJson", (gogoproto.moretags) = "xml:\"ignoreMEXML\""];
+    (gogoproto.jsontag) = "ignoreMEJson", 
+    (gogoproto.moretags) = "xml:\"ignoreMEXML\"",
+    (gogoproto.embed) = true];
     // @inject_tag: sql:"type:string REFERENCES bandi_users(username)"
     string userName = 5;
 
@@ -63,6 +66,10 @@ message BandiCreditCard {
         title: "ID",
         description: "A unique ID/Row Token for the Credit Card"
       }];
+}
+
+message BandiEmbed {
+    string ignore = 1;
 }
 
 
@@ -82,6 +89,15 @@ message CreateBandiUserResponse {
     string name = 1;
 }
 
+message CreateAnyRequest {
+    string notebook = 1;
+    google.protobuf.Any object = 2;
+}
+
+message CreateAnyResponse {
+    google.protobuf.Any object = 1;
+}
+
 service BandiService {
     
   rpc GetBandiUser(GetBandiUserRequest) returns (GetBandiUserResponse){
@@ -95,5 +111,12 @@ service BandiService {
           post: "/objects/users"
           body: "user"
       };
+    }
+
+    rpc CreateAny(CreateAnyRequest) returns (CreateAnyResponse){
+        option (google.api.http) = {
+            post: "/objects/{notebook}/records"
+            body: "object"
+        };
     }
 }

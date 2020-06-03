@@ -110,7 +110,7 @@ Sample project to test out go features
 * Manual Installation and Compilation of Proto/Go
 
   1) Go Mod Created using 
-      `go mod init bandi.com/main`
+      `go mod init bandi.com/TestGo`
   2) To Compile ProtoBuf from root directory
       `protoc --go_out=./pkg/ ./data/proto/addressbook.proto`
   3) 

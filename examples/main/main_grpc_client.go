@@ -14,7 +14,7 @@ import (
 	"github.com/gogo/status"
 	"google.golang.org/grpc/metadata"
 
-	pb "bandi.com/main/pkg/data"
+	pb "bandi.com/TestGo/pkg/data"
 )
 
 // Host - name of the grpc server endpoint

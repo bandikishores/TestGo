@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	pb "bandi.com/main/pkg/data"
+	pb "bandi.com/TestGo/pkg/data"
 )
 
 var once sync.Once

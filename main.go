@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"bandi.com/main/data"
-	pb "bandi.com/main/pkg/data"
-	"bandi.com/main/pkg/protocol"
-	"bandi.com/main/state"
+	"bandi.com/TestGo/data"
+	pb "bandi.com/TestGo/pkg/data"
+	"bandi.com/TestGo/pkg/protocol"
+	"bandi.com/TestGo/state"
 	"github.com/golang/protobuf/proto"
 )
 

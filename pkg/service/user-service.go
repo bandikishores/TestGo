@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	constants "bandi.com/main/data"
-	"bandi.com/main/pkg/data"
-	myErrors "bandi.com/main/pkg/error"
+	constants "bandi.com/TestGo/data"
+	"bandi.com/TestGo/pkg/data"
+	myErrors "bandi.com/TestGo/pkg/error"
 	"github.com/gogo/googleapis/google/rpc"
 	"github.com/gogo/status"
 	"golang.org/x/net/context"

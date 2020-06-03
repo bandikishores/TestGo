@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"bandi.com/main/data"
-	myErrors "bandi.com/main/pkg/error"
+	"bandi.com/TestGo/data"
+	myErrors "bandi.com/TestGo/pkg/error"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc"

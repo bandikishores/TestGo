@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"time"
 
-	"bandi.com/main/pkg/data"
+	"bandi.com/TestGo/pkg/data"
 	"golang.org/x/net/context"
 
 	// Import GORM-related packages.
@@ -176,4 +176,9 @@ func (us *BandiUserService) GetBandiUser(ctx context.Context, req *data.GetBandi
 	var bandiUser data.BandiUser
 	db.Preload("CreditCards").Where(&data.BandiUser{Username: req.Name}).First(&bandiUser)
 	return &data.GetBandiUserResponse{User: &bandiUser}, nil
+}
+
+// CreateAny ...
+func (us *BandiUserService) CreateAny(ctx context.Context, req *data.CreateAnyRequest) (*data.CreateAnyResponse, error) {
+	return &data.CreateAnyResponse{}, nil
 }

@@ -72,6 +72,44 @@
           "BandiService"
         ]
       }
+    },
+    "/objects/{notebook}/records": {
+      "post": {
+        "operationId": "BandiService_CreateAny",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/dataCreateAnyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/gatewayruntimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "notebook",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/protobufAny"
+            }
+          }
+        ],
+        "tags": [
+          "BandiService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -94,8 +132,8 @@
           "description": "Password for this User",
           "title": "Password"
         },
-        "ignoreME": {
-          "type": "string",
+        "bandiEmbed": {
+          "$ref": "#/definitions/dataBandiEmbed",
           "description": "Test Internal Field, Don't store in DB",
           "title": "ignoreME"
         },
@@ -107,6 +145,14 @@
           "type": "string",
           "description": "A unique ID/Row Token for the Credit Card",
           "title": "ID"
+        }
+      }
+    },
+    "dataBandiEmbed": {
+      "type": "object",
+      "properties": {
+        "ignore": {
+          "type": "string"
         }
       }
     },
@@ -123,6 +169,14 @@
             "$ref": "#/definitions/dataBandiCreditCard"
           },
           "title": "@inject_tag: gorm:\"ForeignKey:UserName\""
+        }
+      }
+    },
+    "dataCreateAnyResponse": {
+      "type": "object",
+      "properties": {
+        "object": {
+          "$ref": "#/definitions/protobufAny"
         }
       }
     },

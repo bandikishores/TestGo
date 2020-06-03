@@ -10,9 +10,9 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 
-	"bandi.com/main/pkg/auth"
-	"bandi.com/main/pkg/data"
-	"bandi.com/main/pkg/service"
+	"bandi.com/TestGo/pkg/auth"
+	"bandi.com/TestGo/pkg/data"
+	"bandi.com/TestGo/pkg/service"
 )
 
 // RunGrpcServer runs the grpc server

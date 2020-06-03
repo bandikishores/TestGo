@@ -1,6 +1,6 @@
 GOPRIVATE="github.org/bandikishores,bandikishores.com/bandikishorescom,TestGo,bandi.com/TestGo"
 GOPROXY = direct
-PACKAGE  = common
+PACKAGE  = TestGo
 DATE     = $(shell date +%s)
 BIN      = $(GOPATH)/bin
 BASE     = $(PWD)

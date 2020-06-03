@@ -1,4 +1,4 @@
-module bandi.com/main
+module bandi.com/TestGo
 
 go 1.13
 
