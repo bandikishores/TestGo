@@ -3,6 +3,9 @@ module bandi.com/TestGo
 go 1.13
 
 require (
+	github.com/Jeffail/gabs v1.4.0
+	github.com/Jeffail/gabs/v2 v2.5.1
+	github.com/buger/jsonparser v1.0.0
 	github.com/gogo/gateway v1.1.0
 	github.com/gogo/googleapis v1.4.0
 	github.com/gogo/protobuf v1.3.1
