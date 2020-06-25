@@ -103,18 +103,38 @@ func TestBugerJsonParser(t *testing.T) {
 	fmt.Printf("Original bytearray : %s", string(jsonByteArray))
 }
 
+type Avatar struct {
+	URL     string
+	NewType string
+}
+
 func TestJeffailGabsParser(t *testing.T) {
 	jsonParsed, err := gabs.ParseJSON(jsonByteGlobal)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Full Name : %s", jsonParsed.S("person", "name", "fullName").String())
+	fmt.Printf("Full Name : %s\n", jsonParsed.S("person", "name", "fullName").String())
 
-	fmt.Printf("Before Modification : %s", jsonParsed.String())
+	fmt.Printf("Before Modification : %s\n", jsonParsed.String())
 	//jsonParsed.Delete("person", "name", "fullName")
 	jsonParsed.Set("Kishore Bandi", "person", "name", "fullName")
-	fmt.Printf("After Modification : %s", jsonParsed.String())
-	fmt.Printf("Original bytearray : %s", string(jsonByteGlobal))
+	fmt.Printf("After Modification : %s\n", jsonParsed.String())
+
+	// S is shorthand for Search
+	for key, child := range jsonParsed.S("person").ChildrenMap() {
+		// fmt.Printf("key: %v, value: %v\n", key, child.Data().(string))
+		if key == "avatars" {
+			for _, avatar := range child.Children() {
+				fmt.Println(avatar.S("url").String())
+				avatar.Set("Added To Existing", "NewKey")
+			}
+			err := child.ArrayAppendP(Avatar{URL: "NewURL", NewType: "NewFieldAsWell"}, "0")
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+	fmt.Printf("After Modification : %s\n", jsonParsed.String())
 }
 
 func TestGrpcProto(t *testing.T) {
