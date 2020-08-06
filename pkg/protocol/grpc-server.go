@@ -22,6 +22,13 @@ func RunGrpcServer(ctx context.Context, port string) error {
 		return err
 	}
 
+	/*
+		"github.com/dlmiddlecote/sqlstats"
+		// Create a new collector, the name will be used as a label on the metrics
+		collector := sqlstats.NewStatsCollector("bandi", dbDriver)
+		// Register it with Prometheus
+		prometheus.MustRegister(collector)*/
+
 	// register service
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(

@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"runtime/pprof"
 	"sync"
@@ -17,6 +18,7 @@ import (
 	"bandi.com/TestGo/pkg/protocol"
 	"bandi.com/TestGo/state"
 	"github.com/golang/protobuf/proto"
+	"github.com/google/gops/agent"
 )
 
 var channel chan struct{}
@@ -30,7 +32,16 @@ func getResolvedAddresses(host string) *net.TCPAddr {
 	return addr
 }
 
+const pprofAddr string = ":6060"
+
 func main() {
+	// start pprof server
+	go func() {
+		_ = http.ListenAndServe(pprofAddr, nil)
+	}()
+	// start gops agent
+	_ = agent.Listen(agent.Options{})
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

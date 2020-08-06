@@ -11,6 +11,7 @@ require (
 	github.com/gogo/protobuf v1.3.1
 	github.com/gogo/status v1.1.0
 	github.com/golang/protobuf v1.3.2
+	github.com/google/gops v0.3.10 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/googleapis/googleapis v0.0.0-20200303215514-541b1ded4aba // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
